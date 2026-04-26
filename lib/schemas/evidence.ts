@@ -5,7 +5,7 @@ export const EvidenceItemSchema = z.object({
   source_id: z.string(),
   date: z.string(),
   excerpt: z.string(),
-  relevance_score: z.number().min(0).max(1),
+  relevance_score: z.number(),
 });
 
 export const CriterionEvidenceSchema = z.object({

@@ -104,9 +104,13 @@ export default function AutopilotPage() {
 
   function addActivity(event: TraceEvent) {
     eventCounter.current += 1;
+    const subagent = 'subagent' in event ? event.subagent : 'run';
     setActivityLog(prev => [
       ...prev,
-      { id: `${eventCounter.current}-${event.type}`, event },
+      {
+        id: `${subagent}-${event.type}-${event.timestamp}-${eventCounter.current}`,
+        event,
+      },
     ]);
   }
 

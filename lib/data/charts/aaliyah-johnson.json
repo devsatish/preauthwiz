@@ -1,0 +1,136 @@
+{
+  "resourceType": "Bundle",
+  "id": "aaliyah-johnson-chart",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-003-fhir",
+        "name": [{ "family": "Johnson", "given": ["Aaliyah"] }],
+        "birthDate": "1989-06-26",
+        "gender": "female",
+        "identifier": [{ "system": "urn:meridianhealth:mrn", "value": "MRN-0517904" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-001",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "code": {
+          "coding": [{ "system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "G43.709", "display": "Migraine, unspecified, not intractable, without status migrainosus" }]
+        },
+        "clinicalStatus": { "coding": [{ "code": "active" }] },
+        "verificationStatus": { "coding": [{ "code": "confirmed" }] },
+        "onsetDateTime": "2023-10-15",
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "note": [{ "text": "Chronic migraine diagnosis confirmed. Patient reports ≥15 headache days per month for >3 months. Meets ICHD-3 criteria for chronic migraine. Failed topiramate and propranolol." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-headache-diary-001",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-01-01", "end": "2024-01-31" },
+        "valueQuantity": { "value": 18, "unit": "days/month" },
+        "note": [{ "text": "January 2024: 18 headache days. Mean headache duration 5.2 hours. Severe pain (NRS ≥7) on 12 days. Functional impairment on 15 days." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-headache-diary-002",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-02-01", "end": "2024-02-29" },
+        "valueQuantity": { "value": 22, "unit": "days/month" },
+        "note": [{ "text": "February 2024: 22 headache days (worst month). Mean duration 6.1 hours. 18 days with NRS ≥7. Patient reports significant impact on work performance." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-headache-diary-003",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-03-01", "end": "2024-03-31" },
+        "valueQuantity": { "value": 19, "unit": "days/month" },
+        "note": [{ "text": "March 2024: 19 headache days while on topiramate 100mg. Baseline was 22 days — insufficient response (reduction <50%). Mean duration 5.8 hours." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-topiramate",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "36117", "display": "topiramate" }],
+          "text": "Topiramate (Topamax) 100mg daily"
+        },
+        "effectivePeriod": { "start": "2023-11-01", "end": "2024-03-31" },
+        "dosage": [{ "text": "100mg orally once daily at bedtime" }],
+        "note": [{ "text": "Trial duration 4 months. Insufficient response: headache days reduced from 22 to 19/month (14% reduction; clinically meaningful threshold is ≥50%). Patient tolerated medication without cognitive side effects." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-propranolol",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "8787", "display": "propranolol" }],
+          "text": "Propranolol 80mg daily"
+        },
+        "effectivePeriod": { "start": "2023-07-01", "end": "2023-12-15" },
+        "dosage": [{ "text": "40mg twice daily" }],
+        "note": [{ "text": "Trial discontinued after 6 weeks due to bradycardia (resting HR 48 bpm). Headache frequency did not improve during the trial period." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-neurology-consult",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }],
+          "text": "Neurology Consultation — Chronic Migraine Management"
+        },
+        "effectiveDateTime": "2024-04-10",
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "conclusion": "Patient Aaliyah Johnson presents with chronic migraine (≥15 headache days/month for >6 months), refractory to two prior preventive agents (topiramate 100mg × 4 months; propranolol 80mg × 6 weeks, discontinued for bradycardia). Documentation supports ICHD-3 criteria for chronic migraine. Patient is an appropriate candidate for onabotulinumtoxinA (Botox) 155 units per the PREEMPT injection protocol. Recommended dosing: 155–200 units every 12 weeks across 31–39 injection sites. No contraindications identified."
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "proc-erenumab",
+        "subject": { "reference": "Patient/pat-003-fhir" },
+        "status": "completed",
+        "code": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "1876365", "display": "erenumab-aooe" }],
+          "text": "CGRP antibody trial — erenumab (Aimovig) 70mg monthly injection"
+        },
+        "performedPeriod": { "start": "2024-01-15", "end": "2024-04-15" },
+        "note": [{ "text": "3-month trial of erenumab 70mg SC monthly. Insufficient response: headache days 22→19/month (13% reduction). Patient reported no tolerability issues. Trial count now includes: topiramate (failed), propranolol (discontinued, side effects), erenumab (failed)." }]
+      }
+    }
+  ]
+}

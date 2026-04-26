@@ -23,9 +23,12 @@ export function AppShell({ persona, tourSeen, children }: AppShellProps) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    // h-screen + overflow-hidden locks the shell to viewport height; main
+    // scrolls internally. Without this, long pages (auth queue, trace) push
+    // the side-nav footer below the fold.
+    <div className="flex h-screen overflow-hidden">
       <AppNav persona={persona} tourSeen={tourSeen} />
-      <main className="flex-1 min-h-screen overflow-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

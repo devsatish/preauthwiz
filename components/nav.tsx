@@ -56,7 +56,7 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
 
   return (
     <>
-      <nav className="w-56 shrink-0 border-r border-slate-200 bg-white flex flex-col min-h-screen">
+      <nav className="w-56 shrink-0 border-r border-slate-200 bg-white flex flex-col h-full">
         {/* Brand */}
         <div className="px-4 py-5 border-b border-slate-200">
           <div className="flex items-center justify-between">

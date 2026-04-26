@@ -45,3 +45,7 @@ next-env.d.ts
 # Aetna policy HTML — large, fetched on demand by scripts/ingest-policies.ts.
 # The derived _chunks-preview.jsonl is tracked for reproducibility without re-fetch.
 lib/data/policies/*.html
+
+# Eval harness results — written by lib/eval/persist.ts after each pnpm eval run.
+# Reproducible from cases.ts; per-developer cache, not source of truth.
+.eval-results/

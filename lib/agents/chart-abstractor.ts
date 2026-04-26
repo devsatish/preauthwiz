@@ -6,6 +6,7 @@ import { chartAbstractorInstructions } from '@/lib/ai/prompts/chart-abstractor';
 
 export const chartAbstractor = new ToolLoopAgent({
   model: sonnet,
+  temperature: 0,
   instructions: chartAbstractorInstructions(),
   tools: { search_patient_chart: searchPatientChart },
   output: Output.object({ schema: ChartAbstractionResultSchema }),

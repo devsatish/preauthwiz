@@ -6,6 +6,7 @@ import { policyResearcherInstructions } from '@/lib/ai/prompts/policy-researcher
 
 export const policyResearcher = new ToolLoopAgent({
   model: sonnet,
+  temperature: 0,
   instructions: policyResearcherInstructions(),
   tools: { lookup_medical_policy: lookupMedicalPolicy },
   output: Output.object({ schema: PolicyResearchResultSchema }),

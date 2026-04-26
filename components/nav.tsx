@@ -10,6 +10,7 @@ import {
   BarChart3,
   Users,
   Stethoscope,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/auth-queue', label: 'Auth Queue', icon: ClipboardList },
   { href: '/autopilot', label: 'Auto-Pilot', icon: Zap },
+  { href: '/chat', label: 'Chat', icon: Bot },
   { href: '/assistant', label: 'Assistant', icon: MessageSquare },
   { href: '/evals', label: 'Evals', icon: BarChart3 },
   { href: '/patients', label: 'Patients', icon: Users },

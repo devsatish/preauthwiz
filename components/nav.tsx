@@ -14,10 +14,12 @@ import {
   HelpCircle,
   LogOut,
   Loader2,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Persona } from '@/lib/auth/personas';
 import { TourDialog } from '@/components/tour-dialog';
+import { TechnicalNotesDialog } from '@/components/technical-notes-dialog';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -41,6 +43,7 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
   // Auto-open the tour dialog the first time a persona signs in. The
   // dialog itself is responsible for marking it seen on close.
   const [tourOpen, setTourOpen] = useState(!tourSeen);
+  const [techOpen, setTechOpen] = useState(false);
 
   async function signOut() {
     if (signingOut) return;
@@ -110,10 +113,10 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
           })}
         </div>
 
-        {/* Tour CTA — always visible. Pre-dismiss it's prominent (blue),
-            post-dismiss it dims to a quieter "replay" link so it doesn't
-            compete with primary nav but stays discoverable. */}
-        <div className="px-3 pb-2">
+        {/* Tour + Technical notes — both always visible. The tour CTA is
+            louder pre-dismiss to guide first-time users; technical notes
+            stays subdued (technical reviewers will go looking for it). */}
+        <div className="px-3 pb-2 space-y-1">
           <button
             onClick={() => setTourOpen(true)}
             className={cn(
@@ -125,6 +128,13 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
           >
             <HelpCircle className="h-3.5 w-3.5" />
             {tourSeen ? 'Replay product tour' : 'Take the 60-second tour'}
+          </button>
+          <button
+            onClick={() => setTechOpen(true)}
+            className="w-full text-xs font-medium px-3 py-2 rounded-md transition-colors flex items-center justify-center gap-1.5 text-slate-500 hover:text-blue-700 hover:bg-slate-100"
+          >
+            <Layers className="h-3.5 w-3.5" />
+            Technical notes
           </button>
         </div>
 
@@ -162,6 +172,7 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
         }}
         persona={persona}
       />
+      <TechnicalNotesDialog open={techOpen} onOpenChange={setTechOpen} />
     </>
   );
 }

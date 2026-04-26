@@ -64,7 +64,12 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
               <div className="h-7 w-7 rounded-md bg-blue-600 flex items-center justify-center group-hover:bg-blue-700 transition-colors">
                 <Zap className="h-4 w-4 text-white" />
               </div>
-              <span className="font-semibold text-slate-900">PreAuthWiz</span>
+              <span
+                className="text-lg text-slate-900 leading-none"
+                style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+              >
+                PreAuth<em className="italic">Wiz</em>
+              </span>
             </Link>
             <button
               onClick={() => setTourOpen(true)}

@@ -1,17 +1,7 @@
 import { redirect } from 'next/navigation';
-import { Instrument_Serif } from 'next/font/google';
 import { getCurrentPersona } from '@/lib/auth/session';
 import { PERSONAS } from '@/lib/auth/personas';
 import { LoginPicker } from './_components/login-picker';
-
-// Editorial serif used only on this landing page. Loaded via next/font so it's
-// preloaded as a CSS variable and doesn't ship to the rest of the app.
-const instrumentSerif = Instrument_Serif({
-  weight: '400',
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  variable: '--font-instrument-serif',
-});
 
 interface LoginPageProps {
   searchParams: Promise<{ next?: string }>;
@@ -45,7 +35,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <div
-      className={`${instrumentSerif.variable} min-h-screen w-full bg-[#EFE7D8] text-[#1F2A23]`}
+      className="min-h-screen w-full bg-[#EFE7D8] text-[#1F2A23]"
       style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}
     >
       {/* Top bar */}

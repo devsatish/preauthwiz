@@ -5,6 +5,7 @@ import { DashboardKPIs } from '@/components/dashboard/kpis';
 import { DashboardCharts } from '@/components/dashboard/charts';
 import { AlertTriangle, Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { getCurrentPersona } from '@/lib/auth/session';
 
 interface DashboardData {
   activeAuthCount: number;
@@ -146,8 +147,12 @@ async function getFeaturedCases(): Promise<FeaturedCase[]> {
 }
 
 export default async function DashboardPage() {
-  const data = await getDashboardData();
-  const featured = await getFeaturedCases();
+  const [data, featured, persona] = await Promise.all([
+    getDashboardData(),
+    getFeaturedCases(),
+    getCurrentPersona(),
+  ]);
+  const firstName = persona?.firstName ?? 'there';
   const totalIssues =
     data.telemetry.score_override +
     data.telemetry.policy_extraction_failure +
@@ -156,8 +161,13 @@ export default async function DashboardPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{data.greetingPhrase}, Jamie</h1>
-        <p className="text-slate-500 mt-1">
+        <h1
+          className="text-3xl text-slate-900 leading-tight"
+          style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+        >
+          {data.greetingPhrase}, <em className="italic text-[#1F4F36]">{firstName}.</em>
+        </h1>
+        <p className="text-slate-500 mt-1.5 text-sm">
           Meridian Health · {data.todayDate} · {data.activeAuthCount} auth{data.activeAuthCount !== 1 ? 's' : ''} need your attention today
         </p>
       </div>
@@ -181,14 +191,18 @@ export default async function DashboardPage() {
           </Link>
         </div>
       ) : data.telemetry.runs_today > 0 ? (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3 flex items-center gap-3">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-          <p className="text-sm text-emerald-800">
+        <div className="bg-[#F1EFE6] border border-[#1F4F36]/20 rounded-lg px-4 py-3 flex items-center gap-3">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F4F36] opacity-50" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1F4F36]" />
+          </span>
+          <CheckCircle2 className="h-4 w-4 text-[#1F4F36] shrink-0" />
+          <p className="text-sm text-[#1F4F36]">
             <span className="font-semibold">{data.telemetry.runs_today} run{data.telemetry.runs_today !== 1 ? 's' : ''} in the last 24h, no safety-net events</span>
             {' — '}
             {data.telemetry.auto_approve_today} auto-approved · {data.telemetry.escalate_today} escalated · {data.telemetry.deny_today} denied
           </p>
-          <Link href="/evals" className="ml-auto text-xs text-emerald-700 hover:underline font-medium whitespace-nowrap flex items-center gap-1">
+          <Link href="/evals" className="ml-auto text-xs text-[#1F4F36] hover:underline font-medium whitespace-nowrap flex items-center gap-1">
             View eval harness <ArrowRight className="h-3 w-3" />
           </Link>
         </div>

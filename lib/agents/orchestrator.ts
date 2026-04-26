@@ -165,7 +165,25 @@ export async function runOrchestrator(
   // Stage 4 — deterministic scoring + Haiku narrative
   emitEvent({ type: 'agent_started', subagent: 'riskScorer', model: 'claude-haiku-4-5', timestamp: new Date().toISOString() });
   const t4 = Date.now();
-  const { score, verdict, blocking_issues, met_count } = computeScore(policy.criteria, evidence.evidence_by_criterion);
+  const { score, verdict, blocking_issues, met_count, score_overrides } = computeScore(
+    policy.criteria,
+    evidence.evidence_by_criterion,
+  );
+
+  // Persist any defensive overrides as telemetry — Phase 4 will use these as eval signals.
+  for (const ov of score_overrides) {
+    await db
+      .insert(authRunEvents)
+      .values({
+        runId,
+        subagent: 'riskScorer',
+        status: 'score_override',
+        output: { type: 'score_override', ...ov },
+      })
+      .catch(() => {
+        // Non-fatal — observability errors must not abort the run.
+      });
+  }
 
   const scored = await runRiskScorer(
     score,
@@ -173,6 +191,7 @@ export async function runOrchestrator(
     policy.criteria,
     met_count,
     blocking_issues,
+    evidence.evidence_by_criterion,
     (tokens) => {
       totalInputTokens += tokens.inputTokens;
       totalOutputTokens += tokens.outputTokens;
@@ -225,6 +244,17 @@ export async function runOrchestrator(
   const totalLatency = Date.now() - startTime;
   const totalCostCents = computeCost('claude-sonnet-4-5', totalInputTokens, totalOutputTokens);
 
+  const finalVerdict = {
+    verdict: scored.verdict,
+    score: scored.score,
+    confidence: scored.confidence,
+    blocking_issues: scored.blocking_issues,
+    narrative: scored.narrative,
+    total_tokens: totalInputTokens + totalOutputTokens,
+    total_cost_cents: totalCostCents,
+    latency_ms: totalLatency,
+  };
+
   // Update run record
   await db
     .update(authRuns)
@@ -235,11 +265,14 @@ export async function runOrchestrator(
       completedAt: new Date(),
       totalTokens: totalInputTokens + totalOutputTokens,
       totalCostCents: String(totalCostCents),
+      finalLetter: letter,
+      finalVerdict,
     })
     .where(eq(authRuns.id, runId));
 
   onEvent({
     type: 'run_completed',
+    runId,
     verdict: scored.verdict,
     total_tokens: totalInputTokens + totalOutputTokens,
     total_cost_cents: totalCostCents,

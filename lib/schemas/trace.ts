@@ -39,6 +39,7 @@ export const TraceEventSchema = z.discriminatedUnion('type', [
   }),
   z.object({
     type: z.literal('run_completed'),
+    runId: z.string(),
     verdict: z.string().optional(),
     total_tokens: z.number(),
     total_cost_cents: z.number(),

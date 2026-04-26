@@ -8,6 +8,7 @@ import {
   jsonb,
   uuid,
   customType,
+  index,
 } from 'drizzle-orm/pg-core';
 
 // pgvector type — stored as text in Drizzle but cast to vector in raw SQL queries
@@ -89,17 +90,25 @@ export const policyChunks = pgTable('policy_chunks', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const authRuns = pgTable('auth_runs', {
-  id: text('id').primaryKey(),
-  priorAuthId: text('prior_auth_id').notNull().references(() => priorAuths.id),
-  status: text('status').notNull().default('pending'),
-  verdict: text('verdict'),
-  confidence: numeric('confidence', { precision: 4, scale: 3 }),
-  startedAt: timestamp('started_at').defaultNow().notNull(),
-  completedAt: timestamp('completed_at'),
-  totalTokens: integer('total_tokens').default(0),
-  totalCostCents: numeric('total_cost_cents', { precision: 10, scale: 4 }).default('0'),
-});
+export const authRuns = pgTable(
+  'auth_runs',
+  {
+    id: text('id').primaryKey(),
+    priorAuthId: text('prior_auth_id').notNull().references(() => priorAuths.id),
+    status: text('status').notNull().default('pending'),
+    verdict: text('verdict'),
+    confidence: numeric('confidence', { precision: 4, scale: 3 }),
+    startedAt: timestamp('started_at').defaultNow().notNull(),
+    completedAt: timestamp('completed_at'),
+    totalTokens: integer('total_tokens').default(0),
+    totalCostCents: numeric('total_cost_cents', { precision: 10, scale: 4 }).default('0'),
+    finalLetter: text('final_letter'),
+    finalVerdict: jsonb('final_verdict'),
+  },
+  (table) => [
+    index('auth_runs_prior_auth_started_idx').on(table.priorAuthId, table.startedAt.desc()),
+  ],
+);
 
 export const authRunEvents = pgTable('auth_run_events', {
   id: uuid('id').primaryKey().defaultRandom(),

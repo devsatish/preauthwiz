@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 .env*.local
 .gstack/
+
+# Aetna policy HTML — large, fetched on demand by scripts/ingest-policies.ts.
+# The derived _chunks-preview.jsonl is tracked for reproducibility without re-fetch.
+lib/data/policies/*.html

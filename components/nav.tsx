@@ -110,18 +110,23 @@ export function AppNav({ persona, tourSeen }: AppNavProps) {
           })}
         </div>
 
-        {/* Tour CTA — only surfaces while it's still useful (i.e., user hasn't dismissed) */}
-        {!tourSeen && (
-          <div className="px-3 pb-2">
-            <button
-              onClick={() => setTourOpen(true)}
-              className="w-full text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-3 py-2 rounded-md transition-colors flex items-center justify-center gap-1.5"
-            >
-              <HelpCircle className="h-3.5 w-3.5" />
-              Take the 60-second tour
-            </button>
-          </div>
-        )}
+        {/* Tour CTA — always visible. Pre-dismiss it's prominent (blue),
+            post-dismiss it dims to a quieter "replay" link so it doesn't
+            compete with primary nav but stays discoverable. */}
+        <div className="px-3 pb-2">
+          <button
+            onClick={() => setTourOpen(true)}
+            className={cn(
+              'w-full text-xs font-medium px-3 py-2 rounded-md transition-colors flex items-center justify-center gap-1.5',
+              tourSeen
+                ? 'text-slate-500 hover:text-blue-700 hover:bg-slate-100'
+                : 'bg-blue-50 hover:bg-blue-100 text-blue-700',
+            )}
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            {tourSeen ? 'Replay product tour' : 'Take the 60-second tour'}
+          </button>
+        </div>
 
         {/* User block */}
         <div className="px-3 py-3 border-t border-slate-200">

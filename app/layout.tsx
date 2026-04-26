@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { AppNav } from '@/components/nav';
+import { AppShell } from '@/components/app-shell';
+import { getCurrentPersona, hasSeenTour } from '@/lib/auth/session';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -19,22 +20,24 @@ export const metadata: Metadata = {
   description: 'Agentic prior authorization assistant for Meridian Health',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const persona = await getCurrentPersona();
+  const tourSeen = await hasSeenTour();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex bg-slate-50">
+      <body className="min-h-full bg-slate-50">
         <TooltipProvider>
-          <AppNav />
-          <main className="flex-1 min-h-screen overflow-auto">
+          <AppShell persona={persona} tourSeen={tourSeen}>
             {children}
-          </main>
+          </AppShell>
         </TooltipProvider>
       </body>
     </html>

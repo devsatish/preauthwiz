@@ -13,7 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "seed": "tsx scripts/seed-data.ts",
     "ingest": "tsx scripts/ingest-policies.ts",
-    "eval": "tsx scripts/eval.ts"
+    "eval": "tsx lib/eval/main.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.71",

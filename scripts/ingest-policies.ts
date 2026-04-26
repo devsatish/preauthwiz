@@ -88,7 +88,7 @@ function clean(html: string): string {
     ];
     if (chromeStrings.some(re => re.test(t))) return;
 
-    const tag = (el as cheerio.TagElement).tagName?.toLowerCase();
+    const tag = (el as { tagName?: string }).tagName?.toLowerCase();
     if (tag && /^h[1-6]$/.test(tag)) {
       blocks.push(`\n## ${t}\n`);
     } else {

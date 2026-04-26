@@ -16,6 +16,10 @@ export const PolicyResearchResultSchema = z.object({
   last_updated: z.string(),
   criteria: z.array(PolicyCriterionSchema),
   excluded_indications: z.array(z.string()),
+  // Self-reported extraction quality. Set to "low" when criteria is empty or
+  // the agent could not confidently identify criteria text in retrieved chunks.
+  extraction_confidence: z.enum(['high', 'low']).optional(),
+  extraction_failure_reason: z.string().optional(),
 });
 
 export type PolicyCriterion = z.infer<typeof PolicyCriterionSchema>;

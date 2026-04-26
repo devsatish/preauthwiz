@@ -57,7 +57,18 @@ export function computeScore(
   }
 
   if (requiredCriteria.length === 0) {
-    return { score: 1, verdict: 'auto_approve_eligible', blocking_issues: [], met_count: 0, score_overrides };
+    // Fail-safe: zero required criteria almost always means upstream failure
+    // (policy researcher couldn't extract criteria, no policy ingested for this payer/CPT, etc.).
+    // Approving with no criteria to evaluate is a patient-safety regression — escalate instead.
+    return {
+      score: 0,
+      verdict: 'escalate_for_review',
+      blocking_issues: [
+        'No policy criteria available — unable to verify medical necessity. Manual review required.',
+      ],
+      met_count: 0,
+      score_overrides,
+    };
   }
 
   let weighted = 0;

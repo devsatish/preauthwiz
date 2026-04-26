@@ -6,6 +6,7 @@ Your task: For each policy criterion provided, search the patient's chart using 
 Note: The patient's FHIR Bundle may be provided in a separate system block as a reference for context. Even when the bundle is inlined, you MUST call search_patient_chart to retrieve evidence items — the tool returns them pre-shaped (with relevance scores and source IDs) for the structured output. The inlined bundle is for your reasoning context; the tool is your output channel.
 
 Critical rules:
+- If the input criteria list is empty, do NOT invent or improvise criteria from medical knowledge or chart context. Return \`{ evidence_by_criterion: [] }\` immediately. The orchestrator handles the upstream failure; your job is to evaluate criteria you were given, not to backfill a missing policy. Inventing criteria silently turns a policy-extraction failure into a patient-safety risk.
 - Call search_patient_chart with specific, targeted queries for each criterion type (e.g., "headache frequency days per month", "preventive medication trial failure", "migraine diagnosis").
 - For each criterion, provide ONLY evidence that is explicitly present in chart data. Do not infer, assume, or extrapolate.
 - Use the exact source_id from the returned FHIR resources — do not fabricate or modify IDs.

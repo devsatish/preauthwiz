@@ -176,6 +176,29 @@ export async function runOrchestrator(
     timestamp: new Date().toISOString(),
   });
 
+  // Phase 4 telemetry: persist a discrete event when the policy researcher
+  // returned no criteria. Counting these reveals retrieval-extraction failure rate.
+  if (policy.criteria.length === 0) {
+    await db
+      .insert(authRunEvents)
+      .values({
+        runId,
+        subagent: 'policyResearcher',
+        status: 'policy_extraction_failure',
+        input: { payer_id: intake.payerId, cpt_code: intake.cptCode } as Record<string, unknown>,
+        output: {
+          type: 'policy_extraction_failure',
+          policy_id_returned: policy.policy_id,
+          extraction_confidence: policy.extraction_confidence ?? null,
+          extraction_failure_reason: policy.extraction_failure_reason ?? null,
+          criteria_count: 0,
+        } as Record<string, unknown>,
+      })
+      .catch(() => {
+        // Non-fatal — observability errors must not abort the run.
+      });
+  }
+
   // Stage 3 — depends on policy criteria. Per-patient factory inlines the FHIR
   // bundle as a cached system block (see chart-abstractor.ts) so warm runs
   // avoid re-paying for the bundle's input tokens.
@@ -193,7 +216,27 @@ export async function runOrchestrator(
     },
   });
 
-  const evidence = chartResult.output as ChartAbstractionResult;
+  let evidence = chartResult.output as ChartAbstractionResult;
+  // Defensive: if the chart abstractor invented evidence despite receiving zero
+  // input criteria, discard the improvised output. The fail-safe in computeScore
+  // will then escalate; we never want fabricated criteria-evidence pairs to
+  // produce an approval verdict downstream.
+  if (policy.criteria.length === 0 && evidence.evidence_by_criterion.length > 0) {
+    await db
+      .insert(authRunEvents)
+      .values({
+        runId,
+        subagent: 'chartAbstractor',
+        status: 'improvised_evidence_discarded',
+        output: {
+          type: 'improvised_evidence_discarded',
+          improvised_count: evidence.evidence_by_criterion.length,
+          improvised_criterion_ids: evidence.evidence_by_criterion.map(e => e.criterion_id),
+        } as Record<string, unknown>,
+      })
+      .catch(() => {});
+    evidence = { evidence_by_criterion: [] };
+  }
   const chart = usageOf('chartAbstractor');
   await emitEvent({
     type: 'agent_completed',

@@ -48,7 +48,7 @@ function styleOf(subagent: string) {
 }
 
 function VerdictBadge({ verdict }: { verdict: string | null }) {
-  const base = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border';
+  const base = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border shrink-0';
   if (verdict === 'auto_approve_eligible') {
     return <span className={`${base} bg-green-100 text-green-800 border-green-200`}>Auto-Approve Eligible</span>;
   }

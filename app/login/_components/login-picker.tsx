@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Lock, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Persona } from '@/lib/auth/personas';
+import type { Persona, PersonaId } from '@/lib/auth/personas';
 
 interface LoginPickerProps {
   personas: Persona[];
@@ -11,24 +11,28 @@ interface LoginPickerProps {
 }
 
 export function LoginPicker({ personas, next }: LoginPickerProps) {
+  const [selected, setSelected] = useState<PersonaId | null>(null);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [pending, setPending] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function signIn(personaId: string) {
-    if (pending) return;
-    if (!password.trim()) {
-      setError('Enter the access password to continue.');
+  const canSubmit = selected !== null && password.trim().length > 0 && !pending;
+
+  async function submit(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!canSubmit) {
+      if (!selected) setError('Pick a persona to sign in as.');
+      else if (!password.trim()) setError('Enter the access password.');
       return;
     }
-    setPending(personaId);
+    setPending(true);
     setError(null);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ personaId, password }),
+        body: JSON.stringify({ personaId: selected, password }),
       });
       if (!res.ok) {
         let msg = 'Sign in failed. Please try again.';
@@ -41,23 +45,82 @@ export function LoginPicker({ personas, next }: LoginPickerProps) {
           // body wasn't JSON, fall back to default message
         }
         setError(msg);
-        setPending(null);
+        setPending(false);
         return;
       }
-      // Hard navigation so the proxy + layout pick up the new cookie.
       window.location.assign(next);
     } catch {
       setError('Network error. Please try again.');
-      setPending(null);
+      setPending(false);
     }
   }
 
   return (
-    <>
-      {/* Access password — gates the demo so random Vercel-link visitors can't drain tokens */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 mb-4 shadow-sm">
-        <label htmlFor="access-password" className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">
-          <Lock className="h-3.5 w-3.5" />
+    <form onSubmit={submit} className="space-y-5">
+      {/* Persona radio cards */}
+      <div className="space-y-3">
+        {personas.map(p => {
+          const active = selected === p.id;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => {
+                setSelected(p.id);
+                if (error) setError(null);
+              }}
+              className={cn(
+                'w-full text-left bg-white border rounded-md px-4 py-3.5 transition-all relative',
+                'focus:outline-none focus:ring-2 focus:ring-[#1F4F36]/40',
+                active
+                  ? 'border-[#1F4F36] ring-2 ring-[#1F4F36]/20'
+                  : 'border-[#1F2A23]/20 hover:border-[#1F2A23]/40',
+              )}
+              aria-pressed={active}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#5C6259] font-semibold font-mono">
+                    {p.loginNumber} / {p.loginCategory.toUpperCase()}
+                  </p>
+                  <p className="text-base font-semibold text-[#1F2A23] mt-1.5 leading-tight">
+                    {p.fullName}
+                  </p>
+                  <p className="text-xs text-[#5C6259] mt-0.5">{p.role}</p>
+                  <p className="text-[13px] text-[#3F4943] mt-2.5 leading-snug">
+                    {p.loginTagline}
+                  </p>
+                  <p className="text-[11px] text-[#5C6259] mt-2.5 font-mono">
+                    <span className="text-[#1F4F36]/60 mr-1">↳</span>
+                    {p.loginTags.join(' · ')}
+                  </p>
+                </div>
+                {/* Radio dot */}
+                <div
+                  className={cn(
+                    'h-4 w-4 rounded-full border shrink-0 mt-1',
+                    active
+                      ? 'border-[#1F4F36] bg-[#1F4F36]'
+                      : 'border-[#1F2A23]/30 bg-white',
+                  )}
+                  aria-hidden
+                >
+                  {active && (
+                    <span className="block h-1.5 w-1.5 rounded-full bg-white mx-auto mt-[5px]" />
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Password */}
+      <div>
+        <label
+          htmlFor="access-password"
+          className="block text-[10px] uppercase tracking-[0.18em] text-[#5C6259] font-semibold font-mono mb-2"
+        >
           Access password
         </label>
         <div className="relative">
@@ -69,97 +132,45 @@ export function LoginPicker({ personas, next }: LoginPickerProps) {
               setPassword(e.target.value);
               if (error) setError(null);
             }}
-            onKeyDown={(e) => {
-              // Pressing Enter in the password field is ambiguous (which persona?),
-              // so we only act on it after a persona has been clicked. Until then
-              // we just suppress the form submit.
-              if (e.key === 'Enter') e.preventDefault();
-            }}
-            placeholder="Enter the password shared by your team"
+            placeholder="shared by your team"
             autoComplete="current-password"
-            autoFocus
-            className="w-full pr-10 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className={cn(
+              'w-full bg-transparent border-0 border-b text-base text-[#1F2A23] placeholder:text-[#5C6259]/60 px-0 py-2 pr-14',
+              'focus:outline-none focus:border-[#1F4F36]',
+              'border-[#1F2A23]/30',
+            )}
           />
           <button
             type="button"
             onClick={() => setShowPassword(s => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1"
+            className="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.16em] text-[#5C6259] hover:text-[#1F4F36] font-mono font-semibold flex items-center gap-1 px-1"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            {showPassword ? 'Hide' : 'Show'}
           </button>
         </div>
-        <p className="text-xs text-slate-500 mt-2">
-          Then choose a persona below to sign in.
-        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {personas.map(p => {
-          const isPending = pending === p.id;
-          const disabled = pending !== null && !isPending;
-          return (
-            <button
-              key={p.id}
-              onClick={() => signIn(p.id)}
-              disabled={disabled || isPending}
-              className={cn(
-                'group relative bg-white rounded-xl border border-slate-200 p-5 text-left transition-all',
-                'hover:border-blue-400 hover:shadow-md hover:-translate-y-0.5',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:hover:border-slate-200',
-              )}
-            >
-              <div className="flex items-start gap-3">
-                <div className={cn('h-12 w-12 rounded-full flex items-center justify-center font-semibold text-base shrink-0', p.avatarClass)}>
-                  {p.initials}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-slate-900 leading-tight">{p.fullName}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{p.role}</p>
-                  <p className="text-xs text-slate-600 mt-2 leading-relaxed">{p.bio}</p>
-                </div>
-              </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Click to sign in</span>
-                <span className="text-xs font-medium text-blue-600 group-hover:underline">
-                  {isPending ? (
-                    <span className="inline-flex items-center gap-1">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Signing in…
-                    </span>
-                  ) : (
-                    <>Continue →</>
-                  )}
-                </span>
-              </div>
-              {/* Persona color stripe accent */}
-              <span
-                className={cn(
-                  'absolute left-0 top-0 bottom-0 w-1 rounded-l-xl',
-                  p.id === 'jamie' ? 'bg-blue-500' : 'bg-emerald-500',
-                )}
-              />
-            </button>
-          );
-        })}
-      </div>
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={!canSubmit}
+        className={cn(
+          'w-full flex items-center justify-between px-5 py-3.5 rounded-md text-sm font-semibold tracking-[0.18em] uppercase font-mono transition-all',
+          canSubmit
+            ? 'bg-[#1F2A23] text-[#EFE7D8] hover:bg-[#1F4F36]'
+            : 'bg-[#1F2A23]/15 text-[#1F2A23]/40 cursor-not-allowed',
+        )}
+      >
+        <span>{pending ? 'Signing in…' : 'Enter the demo'}</span>
+        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+      </button>
 
       {error && (
-        <div className="mt-4 bg-rose-50 border border-rose-200 rounded-md px-3 py-2.5 text-center">
-          <p className="text-xs font-medium text-rose-700">{error}</p>
-        </div>
+        <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded px-3 py-2">{error}</p>
       )}
-
-      {/* Compliance/auth note — soft, demo-friendly */}
-      <div className="mt-6 bg-white/60 backdrop-blur-sm border border-slate-200 rounded-lg p-4 text-xs text-slate-600">
-        <p className="font-medium text-slate-700 mb-1">Single sign-on coming soon</p>
-        <p>
-          Production deployments use SSO via your hospital IDP (Okta, Azure AD, or Epic).
-          Persona switching here lets reviewers preview the experience for different roles.
-        </p>
-      </div>
-    </>
+    </form>
   );
 }

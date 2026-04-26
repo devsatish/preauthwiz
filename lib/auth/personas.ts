@@ -15,20 +15,18 @@ export interface Persona {
   bio: string;
   // Tailwind avatar tint — kept in sync with the rest of the app's avatar palette.
   avatarClass: string;
+  // Login-screen-only fields. The login page is editorial in style and frames
+  // each persona by their workflow ("01 / PHYSICIAN", chart · score · letter).
+  // These don't show up anywhere else in the app.
+  loginNumber: string;
+  loginCategory: string;
+  loginTagline: string;
+  loginTags: string[];
 }
 
+// Aisha (the physician) is listed first on the login screen because the demo
+// flow naturally starts with the reviewer perspective.
 export const PERSONAS: Persona[] = [
-  {
-    id: 'jamie',
-    firstName: 'Jamie',
-    lastName: 'Alvarez',
-    fullName: 'Jamie Alvarez',
-    initials: 'JA',
-    role: 'Intake Admin',
-    roleShort: 'Intake',
-    bio: 'Triages incoming auths, collects missing chart data, escalates edge cases.',
-    avatarClass: 'bg-blue-100 text-blue-700',
-  },
   {
     id: 'aisha',
     firstName: 'Aisha',
@@ -39,6 +37,25 @@ export const PERSONAS: Persona[] = [
     roleShort: 'Reviewer',
     bio: 'Reviews AI verdicts, signs off on auto-approves, owns peer-to-peer escalations.',
     avatarClass: 'bg-emerald-100 text-emerald-700',
+    loginNumber: '01',
+    loginCategory: 'Physician',
+    loginTagline: 'Scoring, citations, and draft letter beside the chart. Sign or send back.',
+    loginTags: ['chart', 'score', 'letter'],
+  },
+  {
+    id: 'jamie',
+    firstName: 'Jamie',
+    lastName: 'Alvarez',
+    fullName: 'Jamie Alvarez',
+    initials: 'JA',
+    role: 'Intake Admin',
+    roleShort: 'Intake',
+    bio: 'Triages incoming auths, collects missing chart data, escalates edge cases.',
+    avatarClass: 'bg-blue-100 text-blue-700',
+    loginNumber: '02',
+    loginCategory: 'Office Staff',
+    loginTagline: 'Build the case packet — eligibility, demographics, chart. Hand off to the physician queue.',
+    loginTags: ['intake', 'packet', 'queue'],
   },
 ];
 

@@ -1,118 +1,149 @@
 import { redirect } from 'next/navigation';
+import { Instrument_Serif } from 'next/font/google';
 import { getCurrentPersona } from '@/lib/auth/session';
 import { PERSONAS } from '@/lib/auth/personas';
 import { LoginPicker } from './_components/login-picker';
-import { Zap, FileSearch, Bot, ShieldCheck } from 'lucide-react';
+
+// Editorial serif used only on this landing page. Loaded via next/font so it's
+// preloaded as a CSS variable and doesn't ship to the rest of the app.
+const instrumentSerif = Instrument_Serif({
+  weight: '400',
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-instrument-serif',
+});
 
 interface LoginPageProps {
   searchParams: Promise<{ next?: string }>;
 }
 
-interface Pillar {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  body: string;
-  accent: string;
+interface Stat {
+  value: string;
+  label: string;
 }
 
-const PILLARS: Pillar[] = [
-  {
-    icon: Bot,
-    title: '5-agent pipeline',
-    body: 'Eligibility, policy researcher, chart abstractor, risk scorer, letter drafter — Claude Opus + Haiku working in parallel.',
-    accent: 'bg-blue-50 text-blue-700',
-  },
-  {
-    icon: FileSearch,
-    title: 'Every claim cited',
-    body: 'Letters quote real chart notes and exact policy language from Aetna, Anthem, and BCBS. Zero hallucination — citations link back to source.',
-    accent: 'bg-emerald-50 text-emerald-700',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Deterministic + audited',
-    body: 'Risk scoring is pure code, not LLM math. A 10-case eval harness catches regressions. Every run leaves a full trace.',
-    accent: 'bg-violet-50 text-violet-700',
-  },
+const STATS: Stat[] = [
+  { value: '5', label: 'agents in parallel' },
+  { value: '100%', label: 'claims cited' },
+  { value: '10', label: 'eval cases' },
+  { value: '0', label: 'hallucinations' },
 ];
+
+// Honest framing: these are payers seeded into the demo queue. Only Aetna's
+// policy corpus is actually indexed for retrieval, but every auth in the
+// queue is routed to one of these payers.
+const PAYERS = ['Aetna', 'Anthem', 'BCBS', 'Cigna', 'Humana', 'Medicare', 'UHC'];
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const persona = await getCurrentPersona();
   const { next } = await searchParams;
   const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
 
-  // Already signed in? Skip the picker.
   if (persona) {
     redirect(safeNext);
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50">
-      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-14">
-        {/* Brand bar */}
-        <div className="flex items-center justify-between mb-10">
-          <div className="inline-flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-              <Zap className="h-5 w-5 text-white" strokeWidth={2.5} />
-            </div>
-            <div className="leading-tight">
-              <p className="text-base font-semibold text-slate-900">PreAuthWiz</p>
-              <p className="text-xs text-slate-500">Meridian Health</p>
-            </div>
-          </div>
-          <span className="text-xs text-slate-400 font-medium px-2.5 py-1 bg-white/60 backdrop-blur-sm border border-slate-200 rounded-full">
-            Demo environment
+    <div
+      className={`${instrumentSerif.variable} min-h-screen w-full bg-[#EFE7D8] text-[#1F2A23]`}
+      style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}
+    >
+      {/* Top bar */}
+      <header className="flex items-center justify-between px-6 sm:px-12 py-6">
+        <div className="flex items-baseline gap-2">
+          <span
+            className="text-2xl text-[#1F2A23] tracking-tight"
+            style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+          >
+            PreAuth<em className="italic">Wiz</em>
           </span>
+          <span className="text-sm text-[#5C6259] tracking-wide">Meridian Health</span>
         </div>
-
-        {/* Hero */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full mb-4">
-            <Zap className="h-3 w-3" />
-            AI prior auth automation
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight leading-tight">
-            Turn 30-minute prior auths into{' '}
-            <span className="text-blue-600">90-second AI drafts.</span>
-          </h1>
-          <p className="text-slate-600 mt-4 text-base leading-relaxed">
-            PreAuthWiz reads the patient&apos;s chart, matches payer policy, scores medical necessity,
-            and drafts a citation-grounded justification letter — ready for a human reviewer to sign.
-            Every claim links back to the chart note or policy paragraph it came from.
-          </p>
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#1F2A23] font-medium">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+          Demo environment <span className="text-[#5C6259]">·</span> Live
         </div>
+      </header>
 
-        {/* Three pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
-          {PILLARS.map((p) => {
-            const Icon = p.icon;
-            return (
-              <div key={p.title} className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-xl p-4">
-                <div className={`h-9 w-9 rounded-lg ${p.accent} flex items-center justify-center mb-3`}>
-                  <Icon className="h-4.5 w-4.5" />
-                </div>
-                <p className="font-semibold text-slate-900 text-sm">{p.title}</p>
-                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{p.body}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Sign in section */}
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-5">
-            <h2 className="text-xl font-semibold text-slate-900">Sign in to explore</h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Enter the access password, then pick a persona. Each role sees the product through their lens.
+      {/* Two-column main */}
+      <main className="px-6 sm:px-12 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 max-w-7xl mx-auto">
+          {/* Left — editorial */}
+          <section className="pt-4 lg:pt-12">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#876D2E] font-semibold mb-6">
+              + AI Prior Auth Automation
             </p>
-          </div>
-          <LoginPicker personas={PERSONAS} next={safeNext} />
-        </div>
+            <h1
+              className="text-[clamp(3rem,7vw,5.75rem)] leading-[0.95] tracking-tight text-[#1F2A23] mb-8"
+              style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+            >
+              From chart to draft.
+              <br />
+              <em className="text-[#1F4F36]">In ninety seconds.</em>
+            </h1>
 
-        <p className="text-center text-xs text-slate-400 mt-10">
-          Demo · Sample patients & payers · No real PHI · Submitted as a Vercel takehome
-        </p>
-      </div>
+            <p className="text-base sm:text-lg leading-relaxed text-[#3F4943] max-w-xl">
+              PreAuthWiz reads the patient&apos;s chart, matches payer policy, scores medical necessity,
+              and drafts a citation-grounded justification letter — ready for a human reviewer to sign.
+            </p>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-6 mt-12 max-w-xl">
+              {STATS.map(s => (
+                <div key={s.label}>
+                  <p
+                    className="text-4xl sm:text-5xl text-[#1F2A23] leading-none"
+                    style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+                  >
+                    {s.value}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-[#5C6259] font-medium mt-2">
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Payer corpus */}
+            <div className="mt-14 pt-8 border-t border-[#1F2A23]/15 max-w-xl">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#5C6259] font-semibold mb-4">
+                Payers · Demo queue
+              </p>
+              <p
+                className="text-2xl text-[#1F2A23] leading-tight"
+                style={{ fontFamily: 'var(--font-instrument-serif), serif', fontStyle: 'italic' }}
+              >
+                {PAYERS.join('  ·  ')}
+              </p>
+            </div>
+          </section>
+
+          {/* Right — sign-in card */}
+          <section className="lg:pt-12">
+            <div className="bg-[#F6EFE0] border border-[#1F2A23]/15 rounded-md px-6 sm:px-8 py-7 lg:sticky lg:top-8">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#5C6259] font-semibold mb-4">
+                Sign in
+              </p>
+              <h2
+                className="text-3xl text-[#1F2A23] leading-tight mb-1"
+                style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+              >
+                Choose a <em className="text-[#1F4F36]">persona.</em>
+              </h2>
+              <p className="text-sm text-[#5C6259] mb-5">
+                Each role frames PreAuthWiz through their workflow.
+              </p>
+
+              <LoginPicker personas={PERSONAS} next={safeNext} />
+
+              <p className="text-[11px] text-[#5C6259] mt-5 leading-relaxed">
+                HIPAA <span className="text-[#1F2A23]/30">·</span> SOC 2 Type II in progress
+                <span className="text-[#1F2A23]/30"> · </span> No PHI in demo
+              </p>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

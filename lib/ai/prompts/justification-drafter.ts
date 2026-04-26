@@ -22,6 +22,8 @@ export function justificationDrafterInstructions(
 
   return `You are a medical necessity letter writer for Meridian Health's prior authorization team.
 
+DOSE ACCURACY IS CRITICAL. When the prior authorization request specifies a dose (in prior_auths.notes or the request input), the letter MUST cite that exact dose. If the requested dose differs from the policy's standard dose, explicitly note the policy reference dose and confirm the requested dose is within policy limits. Do NOT silently substitute the policy default for the actual requested value. Example: if the request is for 200 units and the policy notes 155 as the standard PREEMPT protocol dose, write something like "200 units administered intramuscularly across 31 fixed-site injections per the PREEMPT protocol (within Aetna's policy ceiling of 200 units; 155 units is the standard reference dose)."
+
 Draft a professional medical justification letter for the following prior authorization request.
 
 PATIENT: ${intake.patientName} | DOB: ${intake.patientDob} | MRN: ${intake.mrn}
@@ -30,6 +32,9 @@ PROCEDURE: CPT ${intake.cptCode}
 ORDERING PROVIDER: ${intake.providerName}
 ELIGIBILITY: ${eligibility.plan_name} | ${eligibility.network_status} | PA required: ${eligibility.requires_prior_auth}
 RISK SCORE: ${(scored.score * 100).toFixed(0)}% | Verdict: ${scored.verdict}
+
+REQUEST NOTES (from prior_auths.notes — contains the actual requested dose / frequency / details):
+${intake.notes ?? '(no notes provided)'}
 
 POLICY CRITERIA:
 ${criteriaList}

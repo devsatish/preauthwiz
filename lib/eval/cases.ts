@@ -84,15 +84,21 @@ export const cases: EvalCase[] = [
   // ========== Adversarial (4) ==========
   {
     id: 'dosage-consistency-200-vs-155',
-    description: 'Dosage discrepancy: prior_auth.notes requests 200 units, policy default is 155 — letter must not silently substitute',
+    description: 'Dosage discrepancy: prior_auth.notes requests 200 units, policy default is 155 — letter must cite the actual request and reconcile if it differs',
     priorAuthId: 'auth-005',
     category: 'adversarial',
     expected: {
       verdict: 'escalate_for_review',
-      letter_must_contain: ['200'],
-      letter_must_not_contain: ['155 units'],
+      // The bug was *substitution* — agent silently swapped requested 200 to policy-canonical 155.
+      // Single positive assertion: "200 units" must appear. If it does, the requested dose is cited.
+      // Reconciliation language (mentioning 155 as reference) is encouraged by the prompt but not
+      // strictly required — the agent's behavior across runs varies between explicit reconciliation
+      // ("200 units... 155 is the standard reference dose") and just citing 200 confidently. Both
+      // are acceptable post-fix behaviors. A negative assertion on "155 units" was attempted but
+      // overconstrained — the prompt's own reconciliation example uses "155 units".
+      letter_must_contain: ['200 units'],
     },
-    notes: 'Hero adversarial case. The agent previously substituted policy-canonical 155 for actual requested 200, producing a letter that documented different treatment than was requested. Aetna policy E2 ceiling is 200; the request is at-ceiling. Letter should cite the actual 200 or explicitly reconcile.',
+    notes: 'Hero adversarial case. The agent previously substituted policy-canonical 155 for actual requested 200, producing a letter that documented different treatment than was requested. Aetna policy E2 ceiling is 200; the request is at-ceiling. Letter should cite the actual 200 AND explicitly reconcile (mention "ceiling" or similar policy framing). Pre-fix produced "155 units" with no mention of 200.',
   },
   {
     id: 'empty-criteria-fail-safe',

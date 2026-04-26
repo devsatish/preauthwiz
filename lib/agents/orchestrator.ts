@@ -76,6 +76,7 @@ async function loadIntake(priorAuthId: string): Promise<Intake> {
     cptCode: pa.cptCode,
     dxCodes: pa.dxCodes,
     mrn: pt.mrn,
+    notes: pa.notes,
   };
 }
 

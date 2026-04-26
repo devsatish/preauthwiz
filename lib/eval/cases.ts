@@ -74,6 +74,33 @@ export const cases: EvalCase[] = [
     notes: 'Canonical case. 6/9 chart-verifiable criteria, prospective criteria correctly flagged for human review. Should never auto-approve, never deny. Empirical observation across 12 runs: blocking_count is 0 in ~92% of runs, 1 in ~8%. Allowing blocking_count_max:1 accommodates the temp-0 jitter without losing the catastrophic-regression assertion (blocking_count >> 1 would still fail).',
   },
   {
+    id: 'auth-013-marcus-auto-approve',
+    description: 'Marcus Chen continuation Botox — full prospective documentation, expected auto-approve',
+    priorAuthId: 'auth-013',
+    category: 'regression',
+    expected: {
+      verdict: 'auto_approve_eligible',
+      blocking_count: 0,
+      criteria_count_min: 10,
+      criteria_count_max: 20,
+      score_min: 0.85,
+      score_override_events: 0,
+      policy_extraction_failure_events: 0,
+      improvised_evidence_discarded_events: 0,
+      // Asserts the letter (a) names the patient, (b) cites the actual requested dose (155 units),
+      // (c) recognizes this is a continuation/reauth (not an initial request — that's the whole point
+      // of this case), and (d) cites the actual response value (59%, not the policy threshold 50%).
+      // The brief originally specified "cycle 2" + "50%"; recalibrated:
+      //   - "cycle 2" → "continuation": agent consistently writes "continuation therapy"
+      //     instead of numbering cycles. Same intent — assert the letter knows this isn't fresh.
+      //   - "50%" → "59%": agent cites the actual achievement, not the policy threshold. Asserting
+      //     the actual achievement also catches silent-substitution behavior (same pattern as the
+      //     dosage 200-vs-155 calibration earlier).
+      letter_must_contain: ['Marcus Chen', '155 units', 'continuation', '59%'],
+    },
+    notes: 'Auto-approve regression case. Continuation request with documented prior cycle response (59% reduction from baseline 22 → 9 days/month), MIDAS reduced 42 → 18, full prospective treatment plan in prior_auths.notes (q12 weeks, max 400u/84d, MIDAS reassessment at week 24). Tests C7 (dose limits), C12 (reauth response), C13/C14 (cycle planning) — criteria with zero coverage in auth-005 because Aaliyah is a first-time request.',
+  },
+  {
     id: 'episodic-migraine-deny',
     description: 'Patient with episodic migraine (<15 days/mo) requesting Botox — must deny on E1 exclusion',
     priorAuthId: 'auth-EPISODIC',

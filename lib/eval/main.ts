@@ -8,7 +8,7 @@ async function main() {
   const { runAll } = await import('./runner');
   const { printReport } = await import('./report');
 
-  const results = await runAll(cases);
+  const results = await runAll(cases, { concurrency: 2 });
   printReport(results);
 
   const anyFailed = results.some(r => r.status !== 'PASS');

@@ -43,4 +43,12 @@ export const syntheticProviders: NewProvider[] = [
     specialty: 'Gastroenterology',
     organization: 'Meridian GI Associates',
   },
+  // Phase 4 eval test fixture — Family Medicine prescriber for the non-neurologist case.
+  {
+    id: 'prov-test-pcp',
+    npi: '1990001234',
+    name: 'Dr. Marcus Lee, MD',
+    specialty: 'Family Medicine',
+    organization: 'Meridian Primary Care Associates',
+  },
 ];

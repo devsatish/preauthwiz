@@ -1,0 +1,122 @@
+{
+  "resourceType": "Bundle",
+  "id": "pat-test-stale-chart",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-test-stale-fhir",
+        "name": [{ "family": "Yamamoto", "given": ["Hiroko"] }],
+        "birthDate": "1979-02-16",
+        "gender": "female",
+        "identifier": [{ "system": "urn:meridianhealth:mrn", "value": "MRN-9000004" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-stale-001",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "code": {
+          "coding": [{ "system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "G43.709", "display": "Migraine, unspecified, not intractable, without status migrainosus" }]
+        },
+        "clinicalStatus": { "coding": [{ "code": "active" }] },
+        "verificationStatus": { "coding": [{ "code": "confirmed" }] },
+        "onsetDateTime": "2021-06-15",
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "note": [{ "text": "Chronic migraine. Last documented ≥15 headache days/month in 2022. No recent diary updates." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-stale-diary-001",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2022-04-01", "end": "2022-04-30" },
+        "valueQuantity": { "value": 17, "unit": "days/month" },
+        "note": [{ "text": "April 2022: 17 headache days. STALE — most recent diary entry is over 18 months old." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-stale-diary-002",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2022-05-01", "end": "2022-05-31" },
+        "valueQuantity": { "value": 19, "unit": "days/month" },
+        "note": [{ "text": "May 2022: 19 headache days. STALE." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-stale-diary-003",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2022-06-01", "end": "2022-06-30" },
+        "valueQuantity": { "value": 18, "unit": "days/month" },
+        "note": [{ "text": "June 2022: 18 headache days. STALE." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-stale-topiramate",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "36117", "display": "topiramate" }],
+          "text": "Topiramate 100mg daily"
+        },
+        "effectivePeriod": { "start": "2021-09-01", "end": "2022-01-15" },
+        "dosage": [{ "text": "100mg orally once daily" }],
+        "note": [{ "text": "Trial 4.5 months in 2021-2022. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-stale-propranolol",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "8787", "display": "propranolol" }],
+          "text": "Propranolol 80mg daily"
+        },
+        "effectivePeriod": { "start": "2021-04-01", "end": "2021-08-30" },
+        "dosage": [{ "text": "40mg twice daily" }],
+        "note": [{ "text": "Trial 5 months in 2021. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-stale-neurology-consult",
+        "subject": { "reference": "Patient/pat-test-stale-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }],
+          "text": "Neurology Consultation"
+        },
+        "effectiveDateTime": "2022-08-10",
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "conclusion": "Chronic migraine refractory to topiramate and propranolol. Recommended onabotulinumtoxinA (Botox) per PREEMPT protocol. STALE — consultation date is 2022-08-10, over 18 months prior to current request."
+      }
+    }
+  ]
+}

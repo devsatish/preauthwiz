@@ -16,8 +16,12 @@ export interface PolicyChunkResult {
 
 // Payer → ingested policy_id allowlist. Vector search ranks across these IDs;
 // the embedding model handles cross-indication relevance within the policy set.
+// An explicitly-empty array (e.g., FAKEPAYER) means "we know about this payer
+// but have no policies for it" — used by the Phase 4 eval to test the empty-criteria
+// fail-safe path. Undefined payer falls through to genericFallback.
 const PAYER_POLICIES: Record<string, string[]> = {
   AETNA: ['aetna-cpb-0113', 'aetna-cpb-0462'],
+  FAKEPAYER: [],
 };
 
 const embeddingModel = openai.embedding('text-embedding-3-small');
@@ -46,8 +50,13 @@ export const lookupMedicalPolicy = tool({
   }),
   execute: async ({ payer_id, cpt_code, query }): Promise<PolicyChunkResult[]> => {
     const policyIds = PAYER_POLICIES[payer_id];
-    if (!policyIds || policyIds.length === 0) {
+    if (policyIds === undefined) {
       return genericFallback(payer_id, cpt_code);
+    }
+    // Explicitly-empty payer (e.g., FAKEPAYER) → return no chunks.
+    // Forces the policy researcher onto the empty-criteria fail-safe path.
+    if (policyIds.length === 0) {
+      return [];
     }
 
     const { embedding } = await embed({ model: embeddingModel, value: query });

@@ -1,0 +1,122 @@
+{
+  "resourceType": "Bundle",
+  "id": "pat-test-pcp-chart",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-test-pcp-fhir",
+        "name": [{ "family": "Hutchins", "given": ["Jennifer"] }],
+        "birthDate": "1987-07-22",
+        "gender": "female",
+        "identifier": [{ "system": "urn:meridianhealth:mrn", "value": "MRN-9000003" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-pcp-001",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "code": {
+          "coding": [{ "system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "G43.709", "display": "Migraine, unspecified, not intractable, without status migrainosus" }]
+        },
+        "clinicalStatus": { "coding": [{ "code": "active" }] },
+        "verificationStatus": { "coding": [{ "code": "confirmed" }] },
+        "onsetDateTime": "2023-09-10",
+        "asserter": { "reference": "Practitioner/prov-test-pcp-fhir", "display": "Dr. Marcus Lee, MD — Family Medicine" },
+        "note": [{ "text": "Chronic migraine. Diagnosed by primary care provider. Patient reports ≥15 headache days/month for >3 months. Meets ICHD-3 criteria. NO neurology consultation on file." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-pcp-diary-001",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2024-01-01", "end": "2024-01-31" },
+        "valueQuantity": { "value": 19, "unit": "days/month" },
+        "note": [{ "text": "January 2024: 19 headache days." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-pcp-diary-002",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2024-02-01", "end": "2024-02-29" },
+        "valueQuantity": { "value": 20, "unit": "days/month" },
+        "note": [{ "text": "February 2024: 20 headache days." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-pcp-diary-003",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary"
+        },
+        "effectivePeriod": { "start": "2024-03-01", "end": "2024-03-31" },
+        "valueQuantity": { "value": 18, "unit": "days/month" },
+        "note": [{ "text": "March 2024: 18 headache days." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-pcp-topiramate",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "36117", "display": "topiramate" }],
+          "text": "Topiramate 100mg daily"
+        },
+        "effectivePeriod": { "start": "2023-10-01", "end": "2024-02-15" },
+        "dosage": [{ "text": "100mg orally once daily" }],
+        "note": [{ "text": "Trial 4.5 months. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-pcp-propranolol",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "8787", "display": "propranolol" }],
+          "text": "Propranolol 80mg daily"
+        },
+        "effectivePeriod": { "start": "2023-05-01", "end": "2023-09-01" },
+        "dosage": [{ "text": "40mg twice daily" }],
+        "note": [{ "text": "Trial 4 months. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-pcp-fm-consult",
+        "subject": { "reference": "Patient/pat-test-pcp-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }],
+          "text": "Family Medicine Consultation"
+        },
+        "effectiveDateTime": "2024-04-08",
+        "performer": [{ "reference": "Practitioner/prov-test-pcp-fhir", "display": "Dr. Marcus Lee, MD — Family Medicine" }],
+        "conclusion": "Patient with chronic migraine (≥15 days/month) refractory to topiramate and propranolol. Family Medicine PCP requesting onabotulinumtoxinA (Botox). NO neurology consultation has been obtained. Patient has not been evaluated by a neurologist or headache specialist for this request."
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "resourceType": "Bundle",
+  "id": "pat-test-episodic-chart",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-test-episodic-fhir",
+        "name": [{ "family": "Reyes", "given": ["Mariana"] }],
+        "birthDate": "1991-03-12",
+        "gender": "female",
+        "identifier": [{ "system": "urn:meridianhealth:mrn", "value": "MRN-9000001" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-episodic-001",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "code": {
+          "coding": [{ "system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "G43.709", "display": "Migraine, unspecified, not intractable, without status migrainosus" }]
+        },
+        "clinicalStatus": { "coding": [{ "code": "active" }] },
+        "verificationStatus": { "coding": [{ "code": "confirmed" }] },
+        "onsetDateTime": "2023-08-20",
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "note": [{ "text": "Episodic migraine. Patient reports 8-12 headache days per month. Does NOT meet ICHD-3 chronic migraine threshold (≥15 days/month)." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-episodic-diary-001",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-01-01", "end": "2024-01-31" },
+        "valueQuantity": { "value": 8, "unit": "days/month" },
+        "note": [{ "text": "January 2024: 8 headache days. Mean duration 4.5 hours. Does not meet chronic threshold." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-episodic-diary-002",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-02-01", "end": "2024-02-29" },
+        "valueQuantity": { "value": 10, "unit": "days/month" },
+        "note": [{ "text": "February 2024: 10 headache days. Mean duration 4.8 hours." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-episodic-diary-003",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-03-01", "end": "2024-03-31" },
+        "valueQuantity": { "value": 12, "unit": "days/month" },
+        "note": [{ "text": "March 2024: 12 headache days. Still episodic; below 15-day threshold." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-episodic-topiramate",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "36117", "display": "topiramate" }],
+          "text": "Topiramate 100mg daily"
+        },
+        "effectivePeriod": { "start": "2023-09-01", "end": "2024-01-31" },
+        "dosage": [{ "text": "100mg orally once daily at bedtime" }],
+        "note": [{ "text": "Trial 5 months. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-episodic-propranolol",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "stopped",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "8787", "display": "propranolol" }],
+          "text": "Propranolol 80mg daily"
+        },
+        "effectivePeriod": { "start": "2023-04-01", "end": "2023-08-15" },
+        "dosage": [{ "text": "40mg twice daily" }],
+        "note": [{ "text": "Trial 4 months. Insufficient response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-episodic-neurology-consult",
+        "subject": { "reference": "Patient/pat-test-episodic-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }],
+          "text": "Neurology Consultation"
+        },
+        "effectiveDateTime": "2024-04-05",
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "conclusion": "Patient with episodic migraine (8-12 headache days/month documented over 3 months). Does not currently meet chronic migraine threshold (≥15 days/month) per ICHD-3. Failed topiramate and propranolol. Patient inquiring about onabotulinumtoxinA (Botox); however, Botox is not indicated for episodic migraine per most payer policies including Aetna CPB 0113."
+      }
+    }
+  ]
+}

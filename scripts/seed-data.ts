@@ -1,14 +1,22 @@
-import 'dotenv/config';
-import { db } from '@/lib/db/client';
-import { patients, providers, priorAuths } from '@/lib/db/schema';
-import { syntheticPatients } from '@/lib/data/patients';
-import { syntheticProviders } from '@/lib/data/providers';
-import { syntheticPriorAuths } from '@/lib/data/prior-auths';
+// Load env BEFORE importing the db client. ESM hoisting + the db client snapshotting
+// process.env.DATABASE_URL at module init means an `import 'dotenv/config'` AFTER the
+// db import is a no-op for the connection. Dynamic imports preserve the load order.
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
 async function seed() {
+  const { db } = await import('@/lib/db/client');
+  const { patients, providers, priorAuths, authRuns, authRunEvents } = await import('@/lib/db/schema');
+  const { syntheticPatients } = await import('@/lib/data/patients');
+  const { syntheticProviders } = await import('@/lib/data/providers');
+  const { syntheticPriorAuths } = await import('@/lib/data/prior-auths');
+
   console.log('Seeding database...');
 
-  // Idempotent — clear before reinserting
+  // Idempotent — clear in FK order. auth_run_events references auth_runs; auth_runs
+  // references prior_auths. Wipe child tables first.
+  await db.delete(authRunEvents);
+  await db.delete(authRuns);
   await db.delete(priorAuths);
   await db.delete(patients);
   await db.delete(providers);

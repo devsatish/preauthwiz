@@ -2,6 +2,10 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import type { EvidenceItem } from '@/lib/schemas/evidence';
 import aaliyahChart from '@/lib/data/charts/aaliyah-johnson.json';
+import patEpisodicChart from '@/lib/data/charts/pat-test-episodic.json';
+import patPartialChart from '@/lib/data/charts/pat-test-partial.json';
+import patPcpChart from '@/lib/data/charts/pat-test-pcp.json';
+import patStaleChart from '@/lib/data/charts/pat-test-stale.json';
 
 type FHIRResource = {
   resourceType: string;
@@ -11,6 +15,15 @@ type FHIRResource = {
 
 type FHIRBundle = {
   entry: Array<{ resource: FHIRResource }>;
+};
+
+// Patient-id → FHIR Bundle registry. Phase 4 added test fixtures for the eval harness.
+const PATIENT_CHARTS: Record<string, FHIRBundle> = {
+  'pat-003': aaliyahChart as FHIRBundle,
+  'pat-test-episodic': patEpisodicChart as FHIRBundle,
+  'pat-test-partial': patPartialChart as FHIRBundle,
+  'pat-test-pcp': patPcpChart as FHIRBundle,
+  'pat-test-stale': patStaleChart as FHIRBundle,
 };
 
 function mapFHIRToEvidence(resource: FHIRResource, query: string): EvidenceItem | null {
@@ -86,8 +99,8 @@ function mapFHIRToEvidence(resource: FHIRResource, query: string): EvidenceItem 
   return null;
 }
 
-// Phase 2: queries canonical synthetic FHIR Bundle for Aaliyah Johnson.
-// Phase 3 wires real FHIR sandbox for other patients.
+// Dispatches on patient_id via PATIENT_CHARTS registry. Patients without a registered
+// chart get an empty result (graceful degradation — chart abstractor handles empty evidence).
 export const searchPatientChart = tool({
   description: 'Search patient chart for clinical evidence relevant to a prior authorization request',
   inputSchema: z.object({
@@ -95,21 +108,16 @@ export const searchPatientChart = tool({
     query: z.string().describe('Clinical query to find relevant chart evidence'),
   }),
   execute: async ({ patient_id, query }): Promise<EvidenceItem[]> => {
-    if (patient_id === 'pat-003') {
-      const bundle = aaliyahChart as FHIRBundle;
-      const evidence: EvidenceItem[] = [];
+    const bundle = PATIENT_CHARTS[patient_id];
+    if (!bundle) return [];
 
-      for (const entry of bundle.entry) {
-        const resource = entry.resource;
-        if (resource.resourceType === 'Patient') continue;
-        const item = mapFHIRToEvidence(resource, query);
-        if (item) evidence.push(item);
-      }
-
-      return evidence;
+    const evidence: EvidenceItem[] = [];
+    for (const entry of bundle.entry) {
+      const resource = entry.resource;
+      if (resource.resourceType === 'Patient') continue;
+      const item = mapFHIRToEvidence(resource, query);
+      if (item) evidence.push(item);
     }
-
-    // Fallback for other patients — graceful degradation
-    return [];
+    return evidence;
   },
 });

@@ -1,0 +1,107 @@
+{
+  "resourceType": "Bundle",
+  "id": "pat-test-partial-chart",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-test-partial-fhir",
+        "name": [{ "family": "Adebayo", "given": ["Folake"] }],
+        "birthDate": "1985-11-04",
+        "gender": "female",
+        "identifier": [{ "system": "urn:meridianhealth:mrn", "value": "MRN-9000002" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-partial-001",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "code": {
+          "coding": [{ "system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "G43.709", "display": "Migraine, unspecified, not intractable, without status migrainosus" }]
+        },
+        "clinicalStatus": { "coding": [{ "code": "active" }] },
+        "verificationStatus": { "coding": [{ "code": "confirmed" }] },
+        "onsetDateTime": "2024-01-10",
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "note": [{ "text": "Chronic migraine confirmed. ≥15 headache days/month documented. Meets ICHD-3 criteria. Has tried 1 preventive medication (topiramate). Has not yet completed a second preventive trial." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-partial-diary-001",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-01-01", "end": "2024-01-31" },
+        "valueQuantity": { "value": 17, "unit": "days/month" },
+        "note": [{ "text": "January 2024: 17 headache days. Mean duration 5.0 hours." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-partial-diary-002",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-02-01", "end": "2024-02-29" },
+        "valueQuantity": { "value": 18, "unit": "days/month" },
+        "note": [{ "text": "February 2024: 18 headache days. Mean duration 5.4 hours." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-partial-diary-003",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "72514-3", "display": "Headache frequency diary" }],
+          "text": "Monthly headache diary — headache days per month"
+        },
+        "effectivePeriod": { "start": "2024-03-01", "end": "2024-03-31" },
+        "valueQuantity": { "value": 16, "unit": "days/month" },
+        "note": [{ "text": "March 2024: 16 headache days while on topiramate." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-partial-topiramate",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "status": "active",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "36117", "display": "topiramate" }],
+          "text": "Topiramate 100mg daily"
+        },
+        "effectivePeriod": { "start": "2023-12-01" },
+        "dosage": [{ "text": "100mg orally once daily at bedtime" }],
+        "note": [{ "text": "Trial duration 4 months ongoing. Insufficient response so far. ONLY PREVENTIVE TRIED — no second preventive medication trial documented in chart." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-partial-neurology-consult",
+        "subject": { "reference": "Patient/pat-test-partial-fhir" },
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }],
+          "text": "Neurology Consultation"
+        },
+        "effectiveDateTime": "2024-04-12",
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "conclusion": "Patient with chronic migraine (≥15 days/month for >3 months) per ICHD-3. Currently on topiramate 100mg with insufficient response. Has not yet trialed a second preventive medication from a different drug class (no beta-blocker, antidepressant, or CGRP trial documented). Considering Botox; however, Aetna policy requires failure of 2 preventives from 2 different classes prior to onabotulinumtoxinA."
+      }
+    }
+  ]
+}

@@ -14,6 +14,8 @@ export const TraceEventSchema = z.discriminatedUnion('type', [
     latency_ms: z.number(),
     input_tokens: z.number().optional(),
     output_tokens: z.number().optional(),
+    cache_read_tokens: z.number().optional(),
+    cache_creation_tokens: z.number().optional(),
     output: z.unknown().optional(),
     timestamp: z.string(),
   }),

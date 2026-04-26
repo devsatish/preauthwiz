@@ -1,4 +1,4 @@
-import { ToolLoopAgent, Output } from 'ai';
+import { ToolLoopAgent, Output, type LanguageModelUsage } from 'ai';
 import { z } from 'zod';
 import { haiku } from '@/lib/ai/models';
 import type { PolicyResearchResult } from '@/lib/schemas/policy';
@@ -96,7 +96,7 @@ export async function runRiskScorer(
   met_count: number,
   blocking_issues: string[],
   evidence_by_criterion: ChartAbstractionResult['evidence_by_criterion'],
-  onStepFinish?: (tokens: { inputTokens: number; outputTokens: number }) => void,
+  onStepFinish?: (usage: LanguageModelUsage) => void,
 ): Promise<RiskScoringResult> {
   const requiredCount = criteria.filter(c => c.type === 'required').length;
 
@@ -119,7 +119,7 @@ export async function runRiskScorer(
     prompt: 'Write the narrative explanation for this prior authorization risk assessment.',
     onStepFinish: onStepFinish
       ? async ({ usage }) => {
-          onStepFinish({ inputTokens: usage.inputTokens ?? 0, outputTokens: usage.outputTokens ?? 0 });
+          onStepFinish(usage);
         }
       : undefined,
   });

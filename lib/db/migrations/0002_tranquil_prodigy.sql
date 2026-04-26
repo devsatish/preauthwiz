@@ -1,0 +1,2 @@
+ALTER TABLE "auth_run_events" ADD COLUMN "cache_creation_tokens" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "auth_run_events" ADD COLUMN "cache_read_tokens" integer DEFAULT 0 NOT NULL;

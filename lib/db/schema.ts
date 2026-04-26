@@ -121,6 +121,8 @@ export const authRunEvents = pgTable('auth_run_events', {
   latencyMs: integer('latency_ms'),
   inputTokens: integer('input_tokens'),
   outputTokens: integer('output_tokens'),
+  cacheCreationTokens: integer('cache_creation_tokens').notNull().default(0),
+  cacheReadTokens: integer('cache_read_tokens').notNull().default(0),
   timestamp: timestamp('timestamp').defaultNow().notNull(),
 });
 

@@ -44,7 +44,9 @@ export function printReport(results: CaseResult[]): void {
     const score = r.actual.score.toFixed(2);
     const lat = (r.actual.latency_ms / 1000).toFixed(1);
     const cost = `$${(r.actual.total_cost_cents / 100).toFixed(3)}`;
-    const expected = r.case.expected.verdict.replace(/_/g, ' ');
+    const expected = r.case.expected.verdict_one_of
+      ? r.case.expected.verdict_one_of.map(v => v.replace(/_/g, ' ')).join(' | ')
+      : (r.case.expected.verdict ?? '—').replace(/_/g, ' ');
     const actual = (r.actual.verdict || '—').replace(/_/g, ' ');
     console.log(
       `${pad(r.case.id, 38)}  ${pad(r.case.category, 12)}  ${pad(expected, 22)}  ${pad(actual, 22)}  ${statusBadge(r.status)}    ${pad(score, 6)}  ${pad(String(r.actual.blocking_count), 4)}  ${pad(String(r.actual.criteria_count), 5)}  ${pad(lat, 8)}  ${pad(cost, 8)}`,

@@ -3,7 +3,13 @@ import type { CaseResult, EvalCase } from './cases';
 type Actual = CaseResult['actual'];
 
 export function checkVerdict(c: EvalCase, actual: Actual): string[] {
-  if (actual.verdict !== c.expected.verdict) {
+  if (c.expected.verdict_one_of !== undefined) {
+    if (!c.expected.verdict_one_of.includes(actual.verdict as never)) {
+      return [`verdict: expected one of [${c.expected.verdict_one_of.join(', ')}], got "${actual.verdict}"`];
+    }
+    return [];
+  }
+  if (c.expected.verdict !== undefined && actual.verdict !== c.expected.verdict) {
     return [`verdict: expected "${c.expected.verdict}", got "${actual.verdict}"`];
   }
   return [];

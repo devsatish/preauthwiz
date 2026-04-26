@@ -331,17 +331,17 @@ export function AutopilotClient({ priorAuthId, initialRun }: AutopilotClientProp
           <DialogHeader>
             <DialogTitle>Send for Clinician Review</DialogTitle>
             <DialogDescription>
-              This will route the draft justification letter to Dr. Aisha Patel for final clinical review and payer submission.
+              This will route the draft justification letter to Dr. Emily Carter for final clinical review and payer submission.
               PreAuthWiz never submits prior authorizations autonomously — a licensed clinician must review and approve before any submission.
             </DialogDescription>
           </DialogHeader>
           <div className="bg-amber-50 border border-amber-200 rounded-md px-3 py-2 text-xs text-amber-800">
-            This action will notify Dr. Patel via the EHR task queue. No payer submission occurs at this step.
+            This action will notify Dr. Carter via the EHR task queue. No payer submission occurs at this step.
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setHilDialogOpen(false)}>Cancel</Button>
             <Button onClick={() => setHilDialogOpen(false)} className="bg-blue-600 hover:bg-blue-700">
-              Confirm — Route to Dr. Patel
+              Confirm — Route to Dr. Carter
             </Button>
           </DialogFooter>
         </DialogContent>

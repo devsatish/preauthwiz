@@ -24,15 +24,17 @@ export interface Persona {
   loginTags: string[];
 }
 
-// Aisha (the physician) is listed first on the login screen because the demo
+// The physician persona is listed first on the login screen because the demo
 // flow naturally starts with the reviewer perspective.
 export const PERSONAS: Persona[] = [
   {
+    // Persona id stays 'aisha' so existing session cookies keep working without
+    // forcing a re-login after the rename. Display name is decoupled.
     id: 'aisha',
-    firstName: 'Aisha',
-    lastName: 'Patel',
-    fullName: 'Dr. Aisha Patel',
-    initials: 'AP',
+    firstName: 'Emily',
+    lastName: 'Carter',
+    fullName: 'Dr. Emily Carter',
+    initials: 'EC',
     role: 'Medical Reviewer',
     roleShort: 'Reviewer',
     bio: 'Reviews AI verdicts, signs off on auto-approves, owns peer-to-peer escalations.',

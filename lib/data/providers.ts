@@ -18,7 +18,7 @@ export const syntheticProviders: NewProvider[] = [
   {
     id: 'prov-003',
     npi: '1364728193',
-    name: 'Dr. Aisha Patel, MD',
+    name: 'Dr. Emily Carter, MD',
     specialty: 'Neurology',
     organization: 'Meridian Neuroscience Institute',
   },

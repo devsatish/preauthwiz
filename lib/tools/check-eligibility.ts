@@ -18,7 +18,7 @@ export const checkEligibility = tool({
         plan_type: 'PPO',
         requires_prior_auth: true,
         network_status: 'in_network',
-        notes: 'J0585 OnabotulinumtoxinA covered under specialty drug benefit. Prior authorization required per plan formulary. In-network specialist confirmed (Dr. Aisha Patel, NPI 1364728193). Policy reference: Aetna CPB 0113.',
+        notes: 'J0585 OnabotulinumtoxinA covered under specialty drug benefit. Prior authorization required per plan formulary. In-network specialist confirmed (Dr. Emily Carter, NPI 1364728193). Policy reference: Aetna CPB 0113.',
       };
     }
 

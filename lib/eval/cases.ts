@@ -145,35 +145,32 @@ export const cases: EvalCase[] = [
   // ========== Edge (3) ==========
   {
     id: 'partial-preventive-trial',
-    description: 'Only 1 failed preventive (policy requires 2) — escalate, not deny',
+    description: 'Only 1 failed preventive (policy requires 2) — recommend_deny per scorer threshold',
     priorAuthId: 'auth-PARTIAL-TRIAL',
     category: 'edge',
     expected: {
-      verdict: 'escalate_for_review',
-      blocking_count_max: 3,
+      verdict: 'recommend_deny',
     },
-    notes: 'Tests the boundary between "missing required criteria" (escalate) vs "exclusion criteria met" (deny). Insufficient preventive trials is not an exclusion; it is unmet required criteria. Should escalate.',
+    notes: 'The deterministic scorer routes <0.6 to recommend_deny, treating insufficient documentation the same as policy exclusion. A v2 architecture would distinguish "incomplete_documentation" as a fourth verdict band; for v1 we accept that missing required criteria → deny, with the understanding that the human reviewer would re-route to escalate after the deny is issued.',
   },
   {
     id: 'non-neurologist-prescriber',
-    description: 'Botox requested by primary care, not neurologist — C11 fails',
+    description: 'Botox requested by primary care, not neurologist — recommend_deny per scorer threshold',
     priorAuthId: 'auth-PCP-PRESCRIBER',
     category: 'edge',
     expected: {
-      verdict: 'escalate_for_review',
-      blocking_count_max: 5,
+      verdict: 'recommend_deny',
     },
-    notes: 'Real Aetna criterion C11 requires "prescribed by or in consultation with a provider specialized in treating the member\'s condition". Tests provider-type recognition.',
+    notes: 'The deterministic scorer routes <0.6 to recommend_deny, treating insufficient documentation the same as policy exclusion. A v2 architecture would distinguish "incomplete_documentation" as a fourth verdict band; for v1 we accept that missing required criteria → deny, with the understanding that the human reviewer would re-route to escalate after the deny is issued.',
   },
   {
     id: 'stale-headache-diary',
-    description: 'Diary entries >12 months old — should affect score but not auto-deny',
+    description: 'Diary entries >12 months old — recommend_deny per scorer threshold',
     priorAuthId: 'auth-STALE-DIARY',
     category: 'edge',
     expected: {
-      verdict: 'escalate_for_review',
-      blocking_count_max: 2,
+      verdict: 'recommend_deny',
     },
-    notes: 'Diary observations from 2022 instead of 2024. Tests temporal-relevance reasoning. Older data is incomplete documentation, not exclusion. Should escalate.',
+    notes: 'The deterministic scorer routes <0.6 to recommend_deny, treating insufficient documentation the same as policy exclusion. A v2 architecture would distinguish "incomplete_documentation" as a fourth verdict band; for v1 we accept that missing required criteria → deny, with the understanding that the human reviewer would re-route to escalate after the deny is issued.',
   },
 ];

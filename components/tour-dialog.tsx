@@ -38,7 +38,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     title: 'Welcome to PreAuthWiz',
-    body: 'PreAuthWiz turns 30+ minute prior auth workups into 90-second AI-generated drafts. A 5-agent pipeline pulls the chart, matches payer policy, scores medical necessity, and drafts a justification letter — every claim backed by a citation you can click.',
+    body: 'Prior authorizations are the friction point in modern healthcare — 30+ minutes of chart reading, policy hunting, and letter drafting per case. PreAuthWiz collapses that to ~90 seconds. A 5-agent pipeline pulls the chart, matches payer policy, scores medical necessity, and drafts a justification letter you can sign — with every clinical claim cited back to the chart note or policy paragraph it came from.',
     icon: Sparkles,
     accent: 'bg-blue-50 text-blue-700',
   },

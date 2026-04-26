@@ -24,7 +24,7 @@
         "clinicalStatus": { "coding": [{ "code": "active" }] },
         "verificationStatus": { "coding": [{ "code": "confirmed" }] },
         "onsetDateTime": "2021-06-15",
-        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD" },
         "note": [{ "text": "Chronic migraine. Last documented ≥15 headache days/month in 2022. No recent diary updates." }]
       }
     },
@@ -114,7 +114,7 @@
           "text": "Neurology Consultation"
         },
         "effectiveDateTime": "2022-08-10",
-        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" }],
         "conclusion": "Chronic migraine refractory to topiramate and propranolol. Recommended onabotulinumtoxinA (Botox) per PREEMPT protocol. STALE — consultation date is 2022-08-10, over 18 months prior to current request."
       }
     }

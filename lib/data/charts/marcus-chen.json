@@ -24,7 +24,7 @@
         "clinicalStatus": { "coding": [{ "code": "active" }] },
         "verificationStatus": { "coding": [{ "code": "confirmed" }] },
         "onsetDateTime": "2023-06-10",
-        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD" },
         "note": [{ "text": "Chronic migraine confirmed. Patient meets ICHD-3 criteria for chronic migraine (≥15 headache days/month for >3 months). Failed adequate trials of topiramate and propranolol prior to initiating onabotulinumtoxinA. Currently on cycle 2 of Botox therapy with documented ≥50% reduction in monthly headache frequency." }]
       }
     },
@@ -159,7 +159,7 @@
           "text": "OnabotulinumtoxinA (Botox) 155 units"
         },
         "effectiveDateTime": "2025-08-15T10:30:00-04:00",
-        "performer": [{ "actor": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" } }],
+        "performer": [{ "actor": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" } }],
         "dosage": {
           "text": "155 units administered intramuscularly across 31 fixed sites per PREEMPT protocol",
           "dose": { "value": 155, "unit": "units", "system": "http://unitsofmeasure.org", "code": "[U]" }
@@ -176,7 +176,7 @@
         "class": { "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "AMB", "display": "ambulatory" },
         "type": [{ "text": "Neurology follow-up — cycle 1 Botox response assessment" }],
         "period": { "start": "2025-11-20T14:00:00-05:00", "end": "2025-11-20T14:45:00-05:00" },
-        "participant": [{ "individual": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" } }],
+        "participant": [{ "individual": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" } }],
         "reasonCode": [{ "text": "Cycle 1 Botox response assessment; consideration of cycle 2 continuation" }],
         "note": [{ "text": "Patient seen at week 14 post cycle 1. Diary review demonstrates sustained 50-59% reduction in monthly headache frequency (baseline 22 → cycle 1 average 10 days/month across Sep-Nov). MIDAS score reduced from 42 (severe disability) at baseline to 18 (moderate disability) at follow-up — 57% improvement, exceeding the ≥50% reauthorization threshold. Patient reports significant quality-of-life improvement, return to full work capacity. Recommendation: continue cycle 2 Botox at 155 units q12 weeks with reassessment at week 24 using MIDAS." }]
       }

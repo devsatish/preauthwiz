@@ -24,7 +24,7 @@
         "clinicalStatus": { "coding": [{ "code": "active" }] },
         "verificationStatus": { "coding": [{ "code": "confirmed" }] },
         "onsetDateTime": "2023-08-20",
-        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD" },
         "note": [{ "text": "Episodic migraine. Patient reports 8-12 headache days per month. Does NOT meet ICHD-3 chronic migraine threshold (≥15 days/month)." }]
       }
     },
@@ -114,7 +114,7 @@
           "text": "Neurology Consultation"
         },
         "effectiveDateTime": "2024-04-05",
-        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" }],
         "conclusion": "Patient with episodic migraine (8-12 headache days/month documented over 3 months). Does not currently meet chronic migraine threshold (≥15 days/month) per ICHD-3. Failed topiramate and propranolol. Patient inquiring about onabotulinumtoxinA (Botox); however, Botox is not indicated for episodic migraine per most payer policies including Aetna CPB 0113."
       }
     }

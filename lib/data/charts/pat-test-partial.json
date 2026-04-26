@@ -24,7 +24,7 @@
         "clinicalStatus": { "coding": [{ "code": "active" }] },
         "verificationStatus": { "coding": [{ "code": "confirmed" }] },
         "onsetDateTime": "2024-01-10",
-        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD" },
         "note": [{ "text": "Chronic migraine confirmed. ≥15 headache days/month documented. Meets ICHD-3 criteria. Has tried 1 preventive medication (topiramate). Has not yet completed a second preventive trial." }]
       }
     },
@@ -99,7 +99,7 @@
           "text": "Neurology Consultation"
         },
         "effectiveDateTime": "2024-04-12",
-        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" }],
         "conclusion": "Patient with chronic migraine (≥15 days/month for >3 months) per ICHD-3. Currently on topiramate 100mg with insufficient response. Has not yet trialed a second preventive medication from a different drug class (no beta-blocker, antidepressant, or CGRP trial documented). Considering Botox; however, Aetna policy requires failure of 2 preventives from 2 different classes prior to onabotulinumtoxinA."
       }
     }

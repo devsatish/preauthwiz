@@ -24,7 +24,7 @@
         "clinicalStatus": { "coding": [{ "code": "active" }] },
         "verificationStatus": { "coding": [{ "code": "confirmed" }] },
         "onsetDateTime": "2023-10-15",
-        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD" },
+        "asserter": { "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD" },
         "note": [{ "text": "Chronic migraine diagnosis confirmed. Patient reports ≥15 headache days per month for >3 months. Meets ICHD-3 criteria for chronic migraine. Failed topiramate and propranolol." }]
       }
     },
@@ -114,7 +114,7 @@
           "text": "Neurology Consultation — Chronic Migraine Management"
         },
         "effectiveDateTime": "2024-04-10",
-        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Aisha Patel, MD — Neurology" }],
+        "performer": [{ "reference": "Practitioner/prov-003-fhir", "display": "Dr. Emily Carter, MD — Neurology" }],
         "conclusion": "Patient Aaliyah Johnson presents with chronic migraine (≥15 headache days/month for >6 months), refractory to two prior preventive agents (topiramate 100mg × 4 months; propranolol 80mg × 6 weeks, discontinued for bradycardia). Documentation supports ICHD-3 criteria for chronic migraine. Patient is an appropriate candidate for onabotulinumtoxinA (Botox) 155 units per the PREEMPT injection protocol. Recommended dosing: 155–200 units every 12 weeks across 31–39 injection sites. No contraindications identified."
       }
     },

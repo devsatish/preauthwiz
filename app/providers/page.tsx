@@ -1,6 +1,6 @@
 import { db } from '@/lib/db/client';
 import { providers, priorAuths } from '@/lib/db/schema';
-import { count, eq } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -40,6 +40,7 @@ async function fetchProviders() {
     })
     .from(providers)
     .leftJoin(priorAuths, eq(priorAuths.providerId, providers.id))
+    .where(sql`${providers.id} NOT LIKE 'prov-test-%'`)
     .groupBy(providers.id);
 }
 

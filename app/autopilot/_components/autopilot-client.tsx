@@ -23,7 +23,8 @@ import { Zap, Send, History } from 'lucide-react';
 import type { TraceEvent } from '@/lib/schemas/trace';
 
 const PRIOR_AUTH_OPTIONS = [
-  { id: 'auth-005', label: 'Aaliyah Johnson — J0585 Botox (Chronic Migraine) — Aetna PPO' },
+  { id: 'auth-005', label: 'Aaliyah Johnson — J0585 Botox · NEW (Chronic Migraine) — Aetna PPO' },
+  { id: 'auth-013', label: 'Marcus Chen — J0585 Botox · CONTINUATION Cycle 2 — Aetna PPO' },
   { id: 'auth-011', label: 'Sophia Martinez — 62323 Epidural Injection — Anthem PPO' },
   { id: 'auth-012', label: "Liam O'Brien — J0558 Dupilumab (Asthma) — BCBS" },
 ];

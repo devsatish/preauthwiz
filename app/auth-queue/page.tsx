@@ -73,6 +73,9 @@ export default async function AuthQueuePage(props: PageProps<'/auth-queue'>) {
   )`;
 
   const whereClauses: SQL[] = [];
+  // Always exclude eval-harness test fixtures from the user-facing queue.
+  // Real auths use auth-NNN (digits only); test fixtures use auth-UPPERCASE-LABEL.
+  whereClauses.push(sql`${priorAuths.id} ~ '^auth-[0-9]+$'`);
   if (filter.status && filter.status !== 'all') {
     whereClauses.push(eq(priorAuths.status, filter.status));
   }
@@ -133,7 +136,8 @@ export default async function AuthQueuePage(props: PageProps<'/auth-queue'>) {
     ? rows
     : ((await db
         .select({ status: priorAuths.status, payerId: priorAuths.payerId })
-        .from(priorAuths)) as Array<{ status: string; payerId: string }>);
+        .from(priorAuths)
+        .where(sql`${priorAuths.id} ~ '^auth-[0-9]+$'`)) as Array<{ status: string; payerId: string }>);
   const distinctStatuses = Array.from(new Set(allRowsForFilters.map(r => r.status))).sort();
   const distinctPayers = Array.from(new Set(allRowsForFilters.map(r => r.payerId))).sort();
 

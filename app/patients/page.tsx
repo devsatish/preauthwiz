@@ -1,6 +1,6 @@
 import { db } from '@/lib/db/client';
 import { patients, priorAuths } from '@/lib/db/schema';
-import { count, eq } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -46,6 +46,7 @@ async function fetchPatients() {
     })
     .from(patients)
     .leftJoin(priorAuths, eq(priorAuths.patientId, patients.id))
+    .where(sql`${patients.id} NOT LIKE 'pat-test-%'`)
     .groupBy(patients.id);
 }
 

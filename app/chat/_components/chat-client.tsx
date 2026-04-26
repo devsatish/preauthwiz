@@ -7,8 +7,8 @@ import { Send, ChevronDown, ChevronRight, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SUGGESTED_PROMPTS = [
-  'Show me all pending Aetna auths',
   'What\'s the status of auth-005?',
+  'Compare auth-005 and auth-013 — why did one auto-approve and the other escalate?',
   'Summarize Aetna\'s policy on Botox for chronic migraine',
   'Which auths haven\'t been processed yet?',
 ];

@@ -106,6 +106,21 @@ export const syntheticPatients: NewPatient[] = [
     dxCodes: ['J45.40'],
     phone: '(512) 555-0156',
   },
+  {
+    // Phase 4 second canonical demo case — Marcus Chen, continuation Botox auto-approve path.
+    // Chart at lib/data/charts/marcus-chen.json. Auth at auth-013.
+    id: 'pat-009',
+    mrn: 'MRN-0628493',
+    firstName: 'Marcus',
+    lastName: 'Chen',
+    dob: '1977-08-14',
+    sex: 'M',
+    planId: 'AETNA-OAS-PPO',
+    planName: 'Aetna Open Access Select PPO',
+    payerId: 'AETNA',
+    dxCodes: ['G43.709', 'F41.1'],
+    phone: '(512) 555-0224',
+  },
   // Phase 4 eval test fixtures — synthetic patients used by lib/eval/cases.ts.
   // Charts in lib/data/charts/pat-test-*.json; tool dispatch in lib/tools/search-patient-chart.ts.
   {

@@ -142,6 +142,20 @@ export const syntheticPriorAuths: NewPriorAuth[] = [
     planName: 'BCBS Blue Essentials',
     notes: 'Dupilumab injection — moderate-severe asthma',
   },
+  // Marcus Chen — continuation Botox case (auto-approve canonical demo path).
+  // Notes encode the prospective treatment plan that satisfies C7 (dose limit), C12 (reauth response),
+  // C13/C14 (cycle planning) — criteria with zero coverage in auth-005 because Aaliyah is a first-time request.
+  {
+    id: 'auth-013',
+    patientId: 'pat-009',
+    providerId: 'prov-003',
+    cptCode: 'J0585',
+    dxCodes: ['G43.709'],
+    status: 'pending',
+    payerId: 'AETNA',
+    planName: 'Aetna Open Access Select PPO',
+    notes: 'Cycle 2 reauthorization. Prior cycle (155 units PREEMPT protocol, administered 2025-08-15) reduced monthly headache days from 22 to 9 (59% reduction, exceeding policy threshold of ≥50%). Patient tolerated treatment well with no significant adverse events. Requesting continuation: 155 units, q12 weeks, max 400 units per 84-day window, will reassess at week 24 with MIDAS scoring.',
+  },
   // Phase 4 eval test prior_auths. One per fixture patient. Each pointed at by lib/eval/cases.ts.
   {
     id: 'auth-EPISODIC',

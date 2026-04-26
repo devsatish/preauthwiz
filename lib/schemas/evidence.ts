@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const EvidenceItemSchema = z.object({
-  source_type: z.enum(['Observation', 'Condition', 'MedicationStatement', 'Procedure', 'DiagnosticReport', 'ClinicalNote']),
+  source_type: z.enum(['Observation', 'Condition', 'MedicationStatement', 'MedicationAdministration', 'Procedure', 'DiagnosticReport', 'Encounter', 'ClinicalNote']),
   source_id: z.string(),
   date: z.string(),
   excerpt: z.string(),

@@ -3,12 +3,16 @@
 import { useChat } from '@ai-sdk/react';
 import { useState } from 'react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
 import { Send, ChevronDown, ChevronRight, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Patient-name prompts read more naturally for clinicians than auth-IDs.
+// The LLM chains getActiveAuths -> find auth by patient name -> getAuthDetails,
+// which fits inside stepCountIs(8) on /api/chat.
 const SUGGESTED_PROMPTS = [
-  'What\'s the status of auth-005?',
-  'Compare auth-005 and auth-013 — why did one auto-approve and the other escalate?',
+  'What\'s the status of Aaliyah Johnson\'s prior auth?',
+  'Compare Aaliyah Johnson and Marcus Chen — why did one auto-approve and the other escalate?',
   'Summarize Aetna\'s policy on Botox for chronic migraine',
   'Which auths haven\'t been processed yet?',
 ];
@@ -110,15 +114,21 @@ function MessageRow({ message }: { message: ReturnType<typeof useChat>['messages
       <div className={cn('max-w-3xl space-y-2', isUser ? 'items-end' : 'items-start')}>
         {message.parts.map((part, i) => {
           if (part.type === 'text') {
-            return (
+            // User messages stay plain — they typed them. Assistant messages
+            // get markdown rendering since the LLM emits **bold**, lists, etc.
+            return isUser ? (
               <div
                 key={i}
-                className={cn(
-                  'rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
-                  isUser ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-800',
-                )}
+                className="rounded-lg px-3 py-2 text-sm whitespace-pre-wrap bg-blue-600 text-white"
               >
                 {part.text}
+              </div>
+            ) : (
+              <div
+                key={i}
+                className="rounded-lg px-3.5 py-2.5 text-sm bg-white border border-slate-200 text-slate-800"
+              >
+                <AssistantMarkdown text={part.text} />
               </div>
             );
           }
@@ -129,6 +139,38 @@ function MessageRow({ message }: { message: ReturnType<typeof useChat>['messages
         })}
       </div>
     </div>
+  );
+}
+
+// Custom-styled markdown renderer so the LLM's **bold**, lists, and links
+// render properly inside the chat bubble. Each element gets a Tailwind
+// class via the components prop instead of pulling in @tailwindcss/typography.
+function AssistantMarkdown({ text }: { text: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className="leading-relaxed [&:not(:first-child)]:mt-2">{children}</p>,
+        strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        ul: ({ children }) => <ul className="list-disc pl-5 space-y-1 mt-2">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1 mt-2">{children}</ol>,
+        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+        code: ({ children }) => (
+          <code className="font-mono text-[0.85em] bg-slate-100 text-slate-800 px-1 py-0.5 rounded">{children}</code>
+        ),
+        pre: ({ children }) => (
+          <pre className="font-mono text-xs bg-slate-100 text-slate-800 p-2 rounded my-2 overflow-x-auto">{children}</pre>
+        ),
+        a: ({ href, children }) => (
+          <a href={href} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{children}</a>
+        ),
+        h1: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
+        h2: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
+        h3: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
+      }}
+    >
+      {text}
+    </ReactMarkdown>
   );
 }
 

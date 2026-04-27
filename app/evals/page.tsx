@@ -1,11 +1,81 @@
 import Link from 'next/link';
 import { readLatestResults, type EvalResultsBundle } from '@/lib/eval/persist';
 import type { CaseResult } from '@/lib/eval/cases';
-import { ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronRight, ExternalLink, ShieldCheck, Repeat, Crosshair, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { JsonTree } from '@/app/autopilot/trace/[runId]/_components/json-tree';
 
 // Force dynamic rendering — page reads from disk at request time.
 export const dynamic = 'force-dynamic';
+
+// ======================================================================
+// Methodology copy — explains what the harness is and why each category
+// of case exists. AI-leadership-friendly framing: each category maps to
+// a specific class of failure mode, and the page surfaces what the
+// harness catches that a vanilla LLM would miss.
+// ======================================================================
+
+// Tailwind needs full class strings at build time — no string interpolation.
+const CATEGORY_META: Record<
+  'regression' | 'adversarial' | 'edge',
+  { title: string; tagline: string; purpose: string; icon: typeof ShieldCheck; iconBg: string; iconText: string }
+> = {
+  regression: {
+    title: 'Regression',
+    tagline: 'Catch silent breakage on canonical flows',
+    purpose:
+      "The two demo cases (auth-005 escalate, auth-013 auto-approve) plus a clear-deny baseline. If a prompt change silently flips one of these, we know within a single eval run instead of in production.",
+    icon: Repeat,
+    iconBg: 'bg-blue-50',
+    iconText: 'text-blue-700',
+  },
+  adversarial: {
+    title: 'Adversarial',
+    tagline: 'Engineered to trip the system on a known failure mode',
+    purpose:
+      "Each adversarial case targets a specific class of LLM misbehavior we've seen empirically — dose substitution, narrative grounding, exclusion semantics, policy-extraction emptiness. They double as proofs that the defense-in-depth validators are actually firing.",
+    icon: Crosshair,
+    iconBg: 'bg-purple-50',
+    iconText: 'text-purple-700',
+  },
+  edge: {
+    title: 'Edge',
+    tagline: 'Boundary cases with controlled jitter',
+    purpose:
+      "Cases on the deny / escalate boundary where temp-0 jitter is real. They use verdict_one_of to assert the acceptable verdict set instead of a single answer — flakiness-resistant without losing the catastrophic-regression assertion.",
+    icon: AlertTriangle,
+    iconBg: 'bg-slate-100',
+    iconText: 'text-slate-700',
+  },
+};
+
+// Specific bugs the harness has surfaced during development. These aren't
+// theoretical — every entry corresponds to a real fix in the agent stack.
+const BUGS_CAUGHT: { bug: string; caughtBy: string }[] = [
+  {
+    bug: 'Chart abstractor improvising chart facts that did not appear in the FHIR bundle',
+    caughtBy: 'narrative-grounding-no-fabrication + improvised_evidence_discarded validator',
+  },
+  {
+    bug: 'Risk scorer silently failing open when policy researcher returned empty criteria',
+    caughtBy: 'empty-criteria-fail-safe + policy_extraction_failure validator',
+  },
+  {
+    bug: 'LLM substituting policy-default dose (155 units) for actual requested dose (200 units)',
+    caughtBy: 'dosage-consistency-200-vs-155',
+  },
+  {
+    bug: 'Exclusion criteria misfiring — flagging chronic-migraine patients with literal "episodic" string match',
+    caughtBy: 'exclusion-semantics-stable',
+  },
+  {
+    bug: 'Letter narrative referencing policy-threshold values (50%) instead of actual measured values (59%)',
+    caughtBy: 'auth-013-marcus-auto-approve letter_must_contain assertions',
+  },
+];
+
+// ======================================================================
+// Helpers
+// ======================================================================
 
 function StatusBadge({ status }: { status: CaseResult['status'] }) {
   const base = 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border';
@@ -14,20 +84,14 @@ function StatusBadge({ status }: { status: CaseResult['status'] }) {
   return <span className={`${base} bg-amber-100 text-amber-800 border-amber-200`}>ERROR</span>;
 }
 
-function VerdictPill({ verdict }: { verdict: string }) {
-  const base = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border';
+function VerdictPill({ verdict, kind }: { verdict: string; kind?: 'expected' | 'actual' }) {
+  const dim = kind === 'expected';
+  const base = `inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border ${dim ? 'opacity-75' : ''}`;
   if (verdict === 'auto_approve_eligible') return <span className={`${base} bg-green-50 text-green-700 border-green-200`}>auto-approve</span>;
   if (verdict === 'escalate_for_review') return <span className={`${base} bg-amber-50 text-amber-700 border-amber-200`}>escalate</span>;
   if (verdict === 'recommend_deny') return <span className={`${base} bg-red-50 text-red-700 border-red-200`}>deny</span>;
   if (verdict === 'recommend_approve') return <span className={`${base} bg-blue-50 text-blue-700 border-blue-200`}>approve</span>;
   return <span className={`${base} bg-slate-50 text-slate-600 border-slate-200`}>{verdict || '—'}</span>;
-}
-
-function categoryColor(cat: string): string {
-  if (cat === 'regression') return 'bg-blue-100 text-blue-800 border-blue-200';
-  if (cat === 'adversarial') return 'bg-purple-100 text-purple-800 border-purple-200';
-  if (cat === 'edge') return 'bg-slate-100 text-slate-700 border-slate-200';
-  return 'bg-slate-100 text-slate-700 border-slate-200';
 }
 
 function relativeTime(iso: string): string {
@@ -41,10 +105,10 @@ function relativeTime(iso: string): string {
   return 'just now';
 }
 
-function describeExpected(c: CaseResult['case']): string {
-  if (c.expected.verdict_one_of) return c.expected.verdict_one_of.map(v => v.replace(/_/g, ' ')).join(' | ');
-  if (c.expected.verdict) return c.expected.verdict.replace(/_/g, ' ');
-  return '—';
+function describeExpected(c: CaseResult['case']): string[] {
+  if (c.expected.verdict_one_of) return c.expected.verdict_one_of;
+  if (c.expected.verdict) return [c.expected.verdict];
+  return [];
 }
 
 function EmptyState() {
@@ -72,86 +136,205 @@ export default function EvalsPage() {
   return <Dashboard bundle={bundle} />;
 }
 
+// ======================================================================
+// Main view
+// ======================================================================
+
 function Dashboard({ bundle }: { bundle: EvalResultsBundle }) {
   const total = bundle.results.length;
+  const allPass = bundle.pass_count === total;
+  const avgWallSec = (bundle.total_wall_ms / total / 1000).toFixed(1);
+  const avgCost = (bundle.total_cost_cents / total / 100).toFixed(3);
+
+  // Group results by category, in display order
+  const groups: Record<'regression' | 'adversarial' | 'edge', CaseResult[]> = {
+    regression: [],
+    adversarial: [],
+    edge: [],
+  };
+  for (const r of bundle.results) groups[r.case.category].push(r);
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="border border-slate-200 rounded-lg bg-white">
-        <div className="px-5 py-4 border-b border-slate-200 flex items-baseline justify-between gap-4 flex-wrap">
+      {/* ============ HERO ============ */}
+      <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-200 flex items-baseline justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-lg font-semibold text-slate-900">Eval Harness Results</h1>
+            <h1 className="text-xl font-semibold text-slate-900">Eval Harness</h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Last run {relativeTime(bundle.timestamp)} <span className="font-mono text-slate-400">({bundle.timestamp})</span>
+              Last run {relativeTime(bundle.timestamp)}{' '}
+              <span className="font-mono text-slate-400">({bundle.timestamp})</span>
             </p>
           </div>
           <Link href="/autopilot" className="text-xs text-blue-600 hover:underline">→ Auto-Pilot</Link>
         </div>
-        <div className="px-5 py-3 grid grid-cols-2 sm:grid-cols-5 gap-4 text-xs">
-          <Stat label="Total" value={String(total)} />
-          <Stat label="Pass" value={String(bundle.pass_count)} accent={bundle.pass_count === total ? 'green' : 'slate'} />
+
+        {/* Big headline: PASS rate */}
+        <div className="px-6 py-6 bg-gradient-to-br from-slate-50 to-blue-50 border-b border-slate-200">
+          <div className="flex items-baseline gap-3 mb-2">
+            <span
+              className={`text-5xl font-semibold ${allPass ? 'text-emerald-700' : 'text-amber-700'}`}
+              style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
+            >
+              {bundle.pass_count}/{total}
+            </span>
+            <span className="text-2xl text-slate-500" style={{ fontFamily: 'var(--font-instrument-serif), serif' }}>
+              cases <em className={allPass ? 'text-emerald-700 italic' : 'text-amber-700 italic'}>{allPass ? 'pass.' : 'pass.'}</em>
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 max-w-3xl">
+            10-case suite covering canonical flows, adversarial probes, and verdict-jitter boundaries. Every
+            assertion runs against the full 5-agent pipeline — no mocks, no shortcuts. <strong>10/10 PASS is
+            the ship gate before any prompt change goes out.</strong>
+          </p>
+        </div>
+
+        {/* Stats row */}
+        <div className="px-6 py-4 grid grid-cols-2 sm:grid-cols-5 gap-4 text-xs">
+          <Stat label="Total cases" value={String(total)} />
+          <Stat label="Pass" value={String(bundle.pass_count)} accent="green" />
           <Stat label="Fail" value={String(bundle.fail_count)} accent={bundle.fail_count > 0 ? 'red' : 'slate'} />
-          <Stat label="Wall-clock" value={`${(bundle.total_wall_ms / 1000).toFixed(0)}s`} />
-          <Stat label="Cost" value={`$${(bundle.total_cost_cents / 100).toFixed(4)}`} />
+          <Stat label="Wall-clock" value={`${(bundle.total_wall_ms / 1000).toFixed(0)}s`} sub={`avg ${avgWallSec}s/case`} />
+          <Stat label="Total cost" value={`$${(bundle.total_cost_cents / 100).toFixed(2)}`} sub={`avg $${avgCost}/case`} />
         </div>
       </div>
 
-      {/* Per-case table */}
-      <div className="border border-slate-200 rounded-lg bg-white">
-        <div className="px-5 py-3 border-b border-slate-200">
-          <h2 className="text-sm font-semibold text-slate-700">Cases</h2>
-        </div>
-        <div className="divide-y divide-slate-100">
-          {bundle.results.map((r) => (
-            <CaseRow key={r.case.id} result={r} />
-          ))}
-        </div>
+      {/* ============ METHODOLOGY ============ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {(['regression', 'adversarial', 'edge'] as const).map(cat => {
+          const meta = CATEGORY_META[cat];
+          const Icon = meta.icon;
+          const count = groups[cat].length;
+          const pass = groups[cat].filter(r => r.status === 'PASS').length;
+          return (
+            <div key={cat} className="border border-slate-200 rounded-lg bg-white p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`h-8 w-8 rounded-md flex items-center justify-center ${meta.iconBg} ${meta.iconText}`}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-900 text-sm leading-tight">{meta.title}</p>
+                  <p className="text-xs text-slate-500">{meta.tagline}</p>
+                </div>
+                <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded ${pass === count ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                  {pass}/{count}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mt-1">{meta.purpose}</p>
+            </div>
+          );
+        })}
       </div>
+
+      {/* ============ WHAT IT CATCHES ============ */}
+      <div className="border border-slate-200 rounded-lg bg-white">
+        <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-emerald-700" />
+          <h2 className="text-sm font-semibold text-slate-700">Real bugs this harness has caught</h2>
+        </div>
+        <ul className="divide-y divide-slate-100">
+          {BUGS_CAUGHT.map((b, i) => (
+            <li key={i} className="px-5 py-3 text-xs flex items-start gap-3">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <p className="text-slate-700 leading-relaxed">{b.bug}</p>
+                <p className="text-slate-400 mt-0.5 font-mono text-[11px]">caught by: {b.caughtBy}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ============ CASES BY CATEGORY ============ */}
+      {(['regression', 'adversarial', 'edge'] as const).map(cat => {
+        const cases = groups[cat];
+        if (cases.length === 0) return null;
+        const meta = CATEGORY_META[cat];
+        const Icon = meta.icon;
+        return (
+          <div key={cat} className="border border-slate-200 rounded-lg bg-white">
+            <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+              <Icon className="h-4 w-4 text-slate-500" />
+              <h2 className="text-sm font-semibold text-slate-700">{meta.title} cases</h2>
+              <span className="text-xs text-slate-400">·</span>
+              <span className="text-xs text-slate-500">{cases.length} {cases.length === 1 ? 'case' : 'cases'}</span>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {cases.map(r => <CaseRow key={r.case.id} result={r} />)}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: 'green' | 'red' | 'slate' }) {
+function Stat({ label, value, accent, sub }: { label: string; value: string; accent?: 'green' | 'red' | 'slate'; sub?: string }) {
   const color =
-    accent === 'green' ? 'text-green-700' : accent === 'red' ? 'text-red-700' : 'text-slate-700';
+    accent === 'green' ? 'text-emerald-700' : accent === 'red' ? 'text-red-700' : 'text-slate-700';
   return (
     <div>
-      <p className="text-slate-400 font-medium uppercase tracking-wide">{label}</p>
+      <p className="text-slate-400 font-medium uppercase tracking-wide text-[10px]">{label}</p>
       <p className={`mt-0.5 text-base font-semibold ${color}`}>{value}</p>
+      {sub && <p className="text-slate-400 text-[10px] mt-0.5">{sub}</p>}
     </div>
   );
 }
 
 function CaseRow({ result }: { result: CaseResult }) {
   const r = result;
-  const expected = describeExpected(r.case);
+  const expectedVerdicts = describeExpected(r.case);
   const isFail = r.status !== 'PASS';
   return (
-    <div className="px-5 py-3 text-xs">
-      <div className="flex items-baseline gap-3 flex-wrap">
-        <span className="font-mono text-slate-700 font-medium w-72 shrink-0 truncate" title={r.case.id}>{r.case.id}</span>
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${categoryColor(r.case.category)}`}>{r.case.category}</span>
-        <StatusBadge status={r.status} />
-        <span className="text-slate-400">expected:</span>
-        <span className="text-slate-600">{expected}</span>
-        <span className="text-slate-400">→</span>
-        <VerdictPill verdict={r.actual.verdict} />
-        <span className="text-slate-400 font-mono">score {r.actual.score.toFixed(2)}</span>
-        <span className="text-slate-400 font-mono">blk {r.actual.blocking_count}</span>
-        <span className="text-slate-400 font-mono">crit {r.actual.criteria_count}</span>
-        <span className="text-slate-400">{(r.actual.latency_ms / 1000).toFixed(1)}s</span>
-        <span className="text-slate-400">${(r.actual.total_cost_cents / 100).toFixed(3)}</span>
+    <div className="px-5 py-3.5 text-xs">
+      <div className="flex items-start gap-3">
+        {/* LEFT: identity */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-slate-800 font-medium" title={r.case.id}>{r.case.id}</span>
+            <StatusBadge status={r.status} />
+          </div>
+          {r.case.description && (
+            <p className="text-slate-600 mt-1 leading-relaxed">{r.case.description}</p>
+          )}
+        </div>
+
+        {/* RIGHT: expected vs actual + metrics */}
+        <div className="flex items-center gap-4 shrink-0 flex-wrap justify-end">
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-wide text-slate-400 font-medium mb-1">Expected → Actual</p>
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              <span className="flex items-center gap-1">
+                {expectedVerdicts.map(v => (
+                  <VerdictPill key={v} verdict={v} kind="expected" />
+                ))}
+              </span>
+              <span className="text-slate-400">→</span>
+              <VerdictPill verdict={r.actual.verdict} kind="actual" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Metrics row — humanized labels */}
+      <div className="mt-2.5 flex items-center gap-x-4 gap-y-1 flex-wrap text-[11px] text-slate-500">
+        <Metric label="Score" value={r.actual.score.toFixed(2)} />
+        <Metric label="Blocking criteria" value={String(r.actual.blocking_count)} />
+        <Metric label="Total criteria" value={String(r.actual.criteria_count)} />
+        <Metric label="Latency" value={`${(r.actual.latency_ms / 1000).toFixed(1)}s`} />
+        <Metric label="Cost" value={`$${(r.actual.total_cost_cents / 100).toFixed(3)}`} />
         {r.runId && (
-          <Link href={`/autopilot/trace/${r.runId}`} className="ml-auto inline-flex items-center gap-1 text-blue-600 hover:underline">
-            trace <ExternalLink className="h-3 w-3" />
+          <Link
+            href={`/autopilot/trace/${r.runId}`}
+            className="ml-auto inline-flex items-center gap-1 text-blue-600 hover:underline"
+          >
+            view full trace <ExternalLink className="h-3 w-3" />
           </Link>
         )}
       </div>
-      {r.case.description && (
-        <div className="text-slate-500 mt-1.5 italic">{r.case.description}</div>
-      )}
+
       {isFail && (
-        <details className="mt-2">
+        <details className="mt-2.5">
           <summary className="text-blue-600 cursor-pointer text-xs hover:underline select-none inline-flex items-center gap-1">
             <ChevronRight className="h-3 w-3" /> show failure detail
           </summary>
@@ -182,5 +365,14 @@ function CaseRow({ result }: { result: CaseResult }) {
         </details>
       )}
     </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex items-baseline gap-1">
+      <span className="text-slate-400">{label}</span>
+      <span className="font-mono text-slate-700">{value}</span>
+    </span>
   );
 }

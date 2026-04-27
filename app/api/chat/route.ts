@@ -5,7 +5,10 @@ import { getActiveAuths, getAuthDetails, lookupMedicalPolicy } from '@/lib/tools
 // lookupMedicalPolicy here is the chat-friendly wrapper from chat-tools, NOT the
 // orchestrator's version with payer_id + cpt_code params.
 
-export const maxDuration = 60;
+// Chat turn with up to 8 tool-call rounds (stepCountIs(8)) — multi-step
+// research questions can chain several tool calls. 120s gives headroom
+// without going to the full 300s Auto-Pilot needs.
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   const { messages } = (await request.json()) as { messages: UIMessage[] };

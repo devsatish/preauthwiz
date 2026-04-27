@@ -2,7 +2,11 @@ import { NextRequest } from 'next/server';
 import { runOrchestrator } from '@/lib/agents/orchestrator';
 import type { TraceEvent } from '@/lib/schemas/trace';
 
-export const maxDuration = 60;
+// 5-agent pipeline + SSE streaming. Real cold-start runs are ~90-120s
+// (5 subagents × LLM call + RAG retrieval + letter draft). 300s leaves
+// headroom for slow days; it's also Vercel's current default function
+// timeout on all plans, so no upgrade needed.
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   const { priorAuthId } = (await request.json()) as { priorAuthId: string };

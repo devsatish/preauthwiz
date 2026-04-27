@@ -1,11 +1,45 @@
 import Link from 'next/link';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { readLatestResults, type EvalResultsBundle } from '@/lib/eval/persist';
 import type { CaseResult } from '@/lib/eval/cases';
-import { ChevronRight, ExternalLink, ShieldCheck, Repeat, Crosshair, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ExternalLink, ShieldCheck, Repeat, Crosshair, AlertTriangle, CheckCircle2, FileCode2, Code } from 'lucide-react';
 import { JsonTree } from '@/app/autopilot/trace/[runId]/_components/json-tree';
 
 // Force dynamic rendering — page reads from disk at request time.
 export const dynamic = 'force-dynamic';
+
+// Read the eval cases source so the page can show the actual TypeScript that
+// asserts each expected outcome — turns the harness from "trust me, it
+// passes" into "here's the literal assertion code."
+function loadCasesSource(): string | null {
+  try {
+    return readFileSync(path.join(process.cwd(), 'lib/eval/cases.ts'), 'utf-8');
+  } catch {
+    return null;
+  }
+}
+
+// Extract the source slice for a single case by id. Walks balanced braces
+// starting from the `id: 'X'` marker. Doesn't handle strings containing
+// braces, but cases.ts doesn't have any — fine for this purpose.
+function extractCaseSource(source: string, caseId: string): string | null {
+  const idMarker = `id: '${caseId}'`;
+  const idx = source.indexOf(idMarker);
+  if (idx < 0) return null;
+  let openIdx = idx;
+  while (openIdx > 0 && source[openIdx] !== '{') openIdx--;
+  if (source[openIdx] !== '{') return null;
+  let depth = 0;
+  for (let i = openIdx; i < source.length; i++) {
+    if (source[i] === '{') depth++;
+    else if (source[i] === '}') {
+      depth--;
+      if (depth === 0) return source.slice(openIdx, i + 1);
+    }
+  }
+  return null;
+}
 
 // ======================================================================
 // Methodology copy — explains what the harness is and why each category
@@ -133,14 +167,15 @@ function EmptyState() {
 export default function EvalsPage() {
   const bundle = readLatestResults();
   if (!bundle) return <EmptyState />;
-  return <Dashboard bundle={bundle} />;
+  const casesSource = loadCasesSource();
+  return <Dashboard bundle={bundle} casesSource={casesSource} />;
 }
 
 // ======================================================================
 // Main view
 // ======================================================================
 
-function Dashboard({ bundle }: { bundle: EvalResultsBundle }) {
+function Dashboard({ bundle, casesSource }: { bundle: EvalResultsBundle; casesSource: string | null }) {
   const total = bundle.results.length;
   const allPass = bundle.pass_count === total;
   const avgWallSec = (bundle.total_wall_ms / total / 1000).toFixed(1);
@@ -245,6 +280,23 @@ function Dashboard({ bundle }: { bundle: EvalResultsBundle }) {
         </ul>
       </div>
 
+      {/* ============ FULL SOURCE VIEWER ============ */}
+      {casesSource && (
+        <details className="border border-slate-200 rounded-lg bg-white group">
+          <summary className="px-5 py-3 border-b border-slate-200 group-open:border-b border-transparent flex items-center gap-2 cursor-pointer hover:bg-slate-50 transition-colors select-none list-none">
+            <FileCode2 className="h-4 w-4 text-slate-500" />
+            <h2 className="text-sm font-semibold text-slate-700">View case definitions</h2>
+            <span className="text-xs text-slate-400">·</span>
+            <span className="text-xs text-slate-500 font-mono">lib/eval/cases.ts</span>
+            <span className="ml-auto text-xs text-blue-600 group-open:hidden">expand →</span>
+            <span className="ml-auto text-xs text-blue-600 hidden group-open:inline">collapse</span>
+          </summary>
+          <pre className="font-mono text-xs leading-relaxed text-slate-800 bg-slate-50 p-4 overflow-x-auto max-h-[60vh] overflow-y-auto rounded-b-lg whitespace-pre">
+{casesSource}
+          </pre>
+        </details>
+      )}
+
       {/* ============ CASES BY CATEGORY ============ */}
       {(['regression', 'adversarial', 'edge'] as const).map(cat => {
         const cases = groups[cat];
@@ -260,7 +312,13 @@ function Dashboard({ bundle }: { bundle: EvalResultsBundle }) {
               <span className="text-xs text-slate-500">{cases.length} {cases.length === 1 ? 'case' : 'cases'}</span>
             </div>
             <div className="divide-y divide-slate-100">
-              {cases.map(r => <CaseRow key={r.case.id} result={r} />)}
+              {cases.map(r => (
+                <CaseRow
+                  key={r.case.id}
+                  result={r}
+                  source={casesSource ? extractCaseSource(casesSource, r.case.id) : null}
+                />
+              ))}
             </div>
           </div>
         );
@@ -281,7 +339,7 @@ function Stat({ label, value, accent, sub }: { label: string; value: string; acc
   );
 }
 
-function CaseRow({ result }: { result: CaseResult }) {
+function CaseRow({ result, source }: { result: CaseResult; source: string | null }) {
   const r = result;
   const expectedVerdicts = describeExpected(r.case);
   const isFail = r.status !== 'PASS';
@@ -323,15 +381,32 @@ function CaseRow({ result }: { result: CaseResult }) {
         <Metric label="Total criteria" value={String(r.actual.criteria_count)} />
         <Metric label="Latency" value={`${(r.actual.latency_ms / 1000).toFixed(1)}s`} />
         <Metric label="Cost" value={`$${(r.actual.total_cost_cents / 100).toFixed(3)}`} />
-        {r.runId && (
-          <Link
-            href={`/autopilot/trace/${r.runId}`}
-            className="ml-auto inline-flex items-center gap-1 text-blue-600 hover:underline"
-          >
-            view full trace <ExternalLink className="h-3 w-3" />
-          </Link>
-        )}
+        <span className="ml-auto inline-flex items-center gap-3">
+          {r.runId && (
+            <Link
+              href={`/autopilot/trace/${r.runId}`}
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+            >
+              view full trace <ExternalLink className="h-3 w-3" />
+            </Link>
+          )}
+        </span>
       </div>
+
+      {/* Per-case source viewer — lets the demo presenter point at the literal
+          assertion code for this specific case. */}
+      {source && (
+        <details className="mt-2 group">
+          <summary className="text-[11px] text-slate-500 hover:text-blue-600 cursor-pointer select-none inline-flex items-center gap-1">
+            <Code className="h-3 w-3" />
+            <span className="group-open:hidden">show case definition</span>
+            <span className="hidden group-open:inline">hide case definition</span>
+          </summary>
+          <pre className="mt-2 font-mono text-[11px] leading-relaxed text-slate-800 bg-slate-50 border border-slate-200 rounded p-3 overflow-x-auto whitespace-pre">
+{source}
+          </pre>
+        </details>
+      )}
 
       {isFail && (
         <details className="mt-2.5">

@@ -22,12 +22,16 @@ import { FinalReport } from '@/components/autopilot/final-report';
 import { Zap, Send, History } from 'lucide-react';
 import type { TraceEvent } from '@/lib/schemas/trace';
 
-const PRIOR_AUTH_OPTIONS = [
-  { id: 'auth-005', label: 'Aaliyah Johnson — J0585 Botox · NEW (Chronic Migraine) — Aetna PPO' },
-  { id: 'auth-013', label: 'Marcus Chen — J0585 Botox · CONTINUATION Cycle 2 — Aetna PPO' },
-  { id: 'auth-011', label: 'Sophia Martinez — 62323 Epidural Injection — Anthem PPO' },
-  { id: 'auth-012', label: "Liam O'Brien — J0558 Dupilumab (Asthma) — BCBS" },
-];
+// PriorAuthOption is loaded from the DB by the server component (see
+// app/autopilot/page.tsx). hasFullChart marks the two cases (auth-005
+// and auth-013) that ship with FHIR bundles for the chart abstractor.
+// The other auths still run end-to-end, but the chart step returns empty
+// — useful for demonstrating the system's failure modes.
+export interface PriorAuthOption {
+  id: string;
+  label: string;
+  hasFullChart: boolean;
+}
 
 const INITIAL_AGENTS: AgentState[] = [
   { name: 'eligibilitySpecialist', label: 'Eligibility Specialist', role: 'Verifies coverage & PA requirement', model: 'Haiku 4.5', tool: 'check_eligibility', status: 'idle', callCount: 0 },
@@ -77,9 +81,10 @@ export interface InitialRun {
 interface AutopilotClientProps {
   priorAuthId: string;
   initialRun: InitialRun | null;
+  options: PriorAuthOption[];
 }
 
-export function AutopilotClient({ priorAuthId, initialRun }: AutopilotClientProps) {
+export function AutopilotClient({ priorAuthId, initialRun, options }: AutopilotClientProps) {
   const router = useRouter();
   const [selectedAuthId, setSelectedAuthId] = useState(priorAuthId);
   const [isRunning, setIsRunning] = useState(false);
@@ -243,9 +248,22 @@ export function AutopilotClient({ priorAuthId, initialRun }: AutopilotClientProp
           onChange={e => handleCaseChange(e.target.value)}
           disabled={isRunning}
         >
-          {PRIOR_AUTH_OPTIONS.map(opt => (
-            <option key={opt.id} value={opt.id}>{opt.label}</option>
-          ))}
+          {/* Group cases by chart-data depth — full-chart cases first so the
+              demo presenter can pick the canonical flows quickly. */}
+          {options.some(o => o.hasFullChart) && (
+            <optgroup label="★ Full demo data">
+              {options.filter(o => o.hasFullChart).map(opt => (
+                <option key={opt.id} value={opt.id}>★ {opt.id} · {opt.label}</option>
+              ))}
+            </optgroup>
+          )}
+          {options.some(o => !o.hasFullChart) && (
+            <optgroup label="Other auths in queue (limited chart data)">
+              {options.filter(o => !o.hasFullChart).map(opt => (
+                <option key={opt.id} value={opt.id}>{opt.id} · {opt.label}</option>
+              ))}
+            </optgroup>
+          )}
         </select>
         <Button
           onClick={runAutoPilot}
@@ -259,6 +277,13 @@ export function AutopilotClient({ priorAuthId, initialRun }: AutopilotClientProp
           <LastRunBadge completedAt={lastRunCompletedAt} />
         )}
       </div>
+      {/* Subtle hint when the user picks a non-demo case so they know what to expect */}
+      {!options.find(o => o.id === selectedAuthId)?.hasFullChart && options.length > 0 && (
+        <p className="text-xs text-slate-500 -mt-1">
+          This auth does not have a full FHIR chart bundle in the demo. Eligibility and policy
+          retrieval will run normally; chart abstraction will return limited evidence.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">

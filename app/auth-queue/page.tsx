@@ -85,7 +85,7 @@ export default async function AuthQueuePage(props: PageProps<'/auth-queue'>) {
   if (filter.search) {
     const needle = `%${filter.search}%`;
     whereClauses.push(
-      sql`(${ilike(patients.firstName, needle)} OR ${ilike(patients.lastName, needle)} OR ${ilike(priorAuths.id, needle)})`,
+      sql`(${ilike(patients.firstName, needle)} OR ${ilike(patients.lastName, needle)} OR ${ilike(patients.mrn, needle)} OR ${ilike(priorAuths.id, needle)})`,
     );
   }
 
@@ -167,7 +167,7 @@ export default async function AuthQueuePage(props: PageProps<'/auth-queue'>) {
             type="text"
             name="search"
             defaultValue={filter.search ?? ''}
-            placeholder="patient name or auth id…"
+            placeholder="patient name, MRN, or auth id…"
             className="text-xs px-2 py-1.5 border border-slate-300 rounded min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -198,17 +198,20 @@ export default async function AuthQueuePage(props: PageProps<'/auth-queue'>) {
             return (
               <div key={r.authId} className="px-5 py-3 text-xs">
                 <div className="flex items-baseline gap-3 flex-wrap">
+                  {/* Patient is the primary identifier. Auth ID is internal —
+                      demoted to a small mono caption under the MRN. The whole
+                      patient block links to autopilot for that case. */}
                   <Link
                     href={`/autopilot?case=${r.authId}`}
-                    className="font-mono text-blue-700 hover:underline w-44 shrink-0 truncate"
-                    title={r.authId}
+                    className="min-w-[200px] shrink-0 group"
+                    title={`Open ${r.authId} in Auto-Pilot`}
                   >
-                    {r.authId}
+                    <p className="text-slate-800 font-medium group-hover:text-blue-700 group-hover:underline">
+                      {r.patientFirst} {r.patientLast}
+                    </p>
+                    <p className="text-slate-500 font-mono text-[11px]">{r.patientMrn}</p>
+                    <p className="text-slate-400 font-mono text-[10px] mt-0.5">{r.authId}</p>
                   </Link>
-                  <div className="min-w-[180px] shrink-0">
-                    <p className="text-slate-700 font-medium">{r.patientFirst} {r.patientLast}</p>
-                    <p className="text-slate-400 font-mono text-xs">{r.patientMrn}</p>
-                  </div>
                   <div className="text-slate-500 min-w-[140px]">
                     <p>{r.providerName}</p>
                     <p className="text-slate-400 text-xs">{r.providerSpecialty}</p>

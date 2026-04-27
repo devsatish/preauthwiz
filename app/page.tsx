@@ -152,7 +152,7 @@ export default async function DashboardPage() {
     getFeaturedCases(),
     getCurrentPersona(),
   ]);
-  const firstName = persona?.firstName ?? 'there';
+  const greetingName = persona?.greetingName ?? 'there';
   const totalIssues =
     data.telemetry.score_override +
     data.telemetry.policy_extraction_failure +
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
           className="text-3xl text-slate-900 leading-tight"
           style={{ fontFamily: 'var(--font-instrument-serif), serif' }}
         >
-          {data.greetingPhrase}, <em className="italic text-[#1F4F36]">{firstName}.</em>
+          {data.greetingPhrase}, <em className="italic text-[#1F4F36]">{greetingName}.</em>
         </h1>
         <p className="text-slate-500 mt-1.5 text-sm">
           Meridian Health · {data.todayDate} · {data.activeAuthCount} auth{data.activeAuthCount !== 1 ? 's' : ''} need your attention today

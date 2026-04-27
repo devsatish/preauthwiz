@@ -15,6 +15,10 @@ export interface Persona {
   bio: string;
   // Tailwind avatar tint — kept in sync with the rest of the app's avatar palette.
   avatarClass: string;
+  // How to address this persona in greetings. Physicians get "Dr. Lastname";
+  // admins get first name. Set per-persona so we don't have to infer titles
+  // from fullName at every call site.
+  greetingName: string;
   // Login-screen-only fields. The login page is editorial in style and frames
   // each persona by their workflow ("01 / PHYSICIAN", chart · score · letter).
   // These don't show up anywhere else in the app.
@@ -39,6 +43,7 @@ export const PERSONAS: Persona[] = [
     roleShort: 'Reviewer',
     bio: 'Reviews AI verdicts, signs off on auto-approves, owns peer-to-peer escalations.',
     avatarClass: 'bg-emerald-100 text-emerald-700',
+    greetingName: 'Dr. Carter',
     loginNumber: '01',
     loginCategory: 'Physician',
     loginTagline: 'Scoring, citations, and draft letter beside the chart. Sign or send back.',
@@ -54,6 +59,7 @@ export const PERSONAS: Persona[] = [
     roleShort: 'Intake',
     bio: 'Triages incoming auths, collects missing chart data, escalates edge cases.',
     avatarClass: 'bg-blue-100 text-blue-700',
+    greetingName: 'Jamie',
     loginNumber: '02',
     loginCategory: 'Office Staff',
     loginTagline: 'Build the case packet — eligibility, demographics, chart. Hand off to the physician queue.',

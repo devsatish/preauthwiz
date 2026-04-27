@@ -4,6 +4,7 @@ import { useChat } from '@ai-sdk/react';
 import { useState } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Send, ChevronDown, ChevronRight, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -148,6 +149,7 @@ function MessageRow({ message }: { message: ReturnType<typeof useChat>['messages
 function AssistantMarkdown({ text }: { text: string }) {
   return (
     <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => <p className="leading-relaxed [&:not(:first-child)]:mt-2">{children}</p>,
         strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
@@ -167,6 +169,19 @@ function AssistantMarkdown({ text }: { text: string }) {
         h1: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
         h2: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
         h3: ({ children }) => <h3 className="font-semibold text-slate-900 mt-3 mb-1">{children}</h3>,
+        // GFM table styling — kept compact so it fits inside the chat bubble.
+        table: ({ children }) => (
+          <div className="my-2 overflow-x-auto">
+            <table className="w-full text-xs border-collapse">{children}</table>
+          </div>
+        ),
+        thead: ({ children }) => <thead className="bg-slate-50">{children}</thead>,
+        tbody: ({ children }) => <tbody>{children}</tbody>,
+        tr: ({ children }) => <tr className="border-b border-slate-200 last:border-0">{children}</tr>,
+        th: ({ children }) => (
+          <th className="text-left font-semibold text-slate-700 px-2 py-1.5 border-b border-slate-300">{children}</th>
+        ),
+        td: ({ children }) => <td className="px-2 py-1.5 text-slate-700 align-top">{children}</td>,
       }}
     >
       {text}
